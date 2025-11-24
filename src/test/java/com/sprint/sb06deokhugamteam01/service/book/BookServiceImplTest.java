@@ -1,25 +1,35 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
+import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.*;
+import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BookServiceImpl 테스트")
 class BookServiceImplTest {
+
+    @Mock
+    private BookRepository bookRepository;
 
     @InjectMocks
     private BookServiceImpl bookService;
@@ -29,7 +39,12 @@ class BookServiceImplTest {
     void getBookById_Success() {
 
         //given
-        String bookId = "existing-book-id";
+        UUID bookId = UUID.randomUUID();
+
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.of(Book.builder()
+                                .id(bookId)
+                        .build()));
 
         //when
         BookDto result = bookService.getBookById(bookId);
@@ -45,7 +60,10 @@ class BookServiceImplTest {
     void getBookById_Fail_NoSuchBook() {
 
         //given
-        String bookId = "non-existing-book-id";
+        UUID bookId = UUID.randomUUID();
+
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.empty());
 
         //when
         NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
@@ -64,6 +82,11 @@ class BookServiceImplTest {
         //given
         String isbn = "9788966262084";
 
+        when(bookRepository.findByIsbn(isbn))
+                .thenReturn(Optional.of(Book.builder()
+                        .isbn(isbn)
+                        .build()));
+
         //when
         BookDto result = bookService.getBookByIsbn(isbn);
 
@@ -79,6 +102,9 @@ class BookServiceImplTest {
 
         //given
         String isbn = "0000000000000";
+
+        when(bookRepository.findByIsbn(isbn))
+                .thenReturn(Optional.empty());
 
         //when
         NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
@@ -154,6 +180,10 @@ class BookServiceImplTest {
                 LocalDate.now(),
                 "sdfadsfadsf"
         );
+
+        when(bookRepository.existsByIsbn("9788966262084"))
+                .thenReturn(true);
+
 
         //when
         AllReadyExistsIsbnException exception = assertThrows(AllReadyExistsIsbnException.class, () -> {
@@ -288,6 +318,9 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
+        when(bookRepository.existsById(bookId))
+                .thenReturn(false);
+
         //when
         BookInfoFetchFailedException exception = assertThrows(BookInfoFetchFailedException.class, () -> {
             bookService.updateBook(updateRequest, null);
@@ -303,7 +336,7 @@ class BookServiceImplTest {
     void deleteBookById_Success() {
 
         //given
-        String bookId = "existing-book-id";
+        UUID bookId = UUID.randomUUID();
 
         //when
 
@@ -319,7 +352,7 @@ class BookServiceImplTest {
     void deleteBookById_Fail_NoSuchBook() {
 
         //given
-        String bookId = "existing-book-id";
+        UUID bookId = UUID.randomUUID();
 
         //when
         NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
@@ -336,7 +369,7 @@ class BookServiceImplTest {
     void hardDeleteBookById_Success() {
 
         //given
-        String bookId = "existing-book-id";
+        UUID bookId = UUID.randomUUID();
 
         //when
 
@@ -352,7 +385,7 @@ class BookServiceImplTest {
     void hardDeleteBookById_Fail_NoSuchBook() {
 
         //given
-        String bookId = "existing-book-id";
+        UUID bookId = UUID.randomUUID();
 
         //when
         NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {

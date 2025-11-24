@@ -8,9 +8,11 @@ import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDt
 import org.jspecify.annotations.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 public interface BookService {
 
-    BookDto getBookById(String id);
+    BookDto getBookById(UUID id);
 
     BookDto getBookByIsbn(String isbn);
 
@@ -20,8 +22,8 @@ public interface BookService {
 
     BookDto updateBook(BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file);
 
-    void deleteBookById(String id);
+    void deleteBookById(UUID id);
 
-    void hardDeleteBookById(String id);
+    void hardDeleteBookById(UUID id);
 
 }

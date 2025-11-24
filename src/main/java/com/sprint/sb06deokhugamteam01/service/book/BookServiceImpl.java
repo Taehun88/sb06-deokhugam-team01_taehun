@@ -8,10 +8,12 @@ import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDt
 import org.jspecify.annotations.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 public class BookServiceImpl implements  BookService {
 
     @Override
-    public BookDto getBookById(String id) {
+    public BookDto getBookById(UUID id) {
         return null;
     }
 
@@ -36,12 +38,12 @@ public class BookServiceImpl implements  BookService {
     }
 
     @Override
-    public void deleteBookById(String id) {
+    public void deleteBookById(UUID id) {
 
     }
 
     @Override
-    public void hardDeleteBookById(String id) {
+    public void hardDeleteBookById(UUID id) {
 
     }
 }
