@@ -1,4 +1,4 @@
-package com.sprint.sb06deokhugamteam01.dto.book;
+package com.sprint.sb06deokhugamteam01.dto.book.request;
 
 import lombok.Builder;
 

@@ -1,6 +1,4 @@
-package com.sprint.sb06deokhugamteam01.dto.book;
-
-import lombok.Builder;
+package com.sprint.sb06deokhugamteam01.dto.book.request;
 
 import java.time.LocalDate;
 
