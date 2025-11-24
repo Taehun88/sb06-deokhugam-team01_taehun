@@ -54,7 +54,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenAnswer(returnFirstArgument);
 
         // when
-        User result = userService.registerUser(email, nickname, password);
+        User result = userService.createUser(email, nickname, password);
 
         // then
         assertThat(result.getEmail()).isEqualTo(email);
@@ -71,7 +71,7 @@ class UserServiceTest {
 
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.registerUser(email, "tester", "pw"))
+        assertThatThrownBy(() -> userService.createUser(email, "tester", "pw"))
             .isInstanceOf(InvalidUserException.class);
     }
 
@@ -141,15 +141,13 @@ class UserServiceTest {
         User user = randomUser(true);
         UUID userId = user.getId();
         String newNickname = easyRandom.nextObject(String.class);
-        String newPassword = easyRandom.nextObject(String.class);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(returnFirstArgument);
 
-        User result = userService.updateUser(userId, newNickname, newPassword);
+        User result = userService.updateUser(userId, newNickname);
 
         assertThat(result.getNickname()).isEqualTo(newNickname);
-        assertThat(result.getPassword()).isEqualTo(newPassword);
         verify(userRepository).save(user);
     }
 

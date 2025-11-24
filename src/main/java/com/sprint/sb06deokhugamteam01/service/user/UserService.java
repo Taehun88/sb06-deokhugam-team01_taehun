@@ -13,7 +13,7 @@ public interface UserService {
 
     User deactivateUser(UUID userId);
 
-    User updateUser(UUID userId, String nickname, String password);
+    User updateUser(UUID userId, String nickname);
 
     void deleteUser(UUID userId);
 }
