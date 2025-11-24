@@ -3,6 +3,8 @@ package com.sprint.sb06deokhugamteam01.service.book;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
+import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -84,6 +87,29 @@ class BookServiceImplTest {
 
         //then
         assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("paginateBooks 성공 테스트")
+    void paginateBooks_Success() {
+
+        //given
+        PagingBookRequest pagingBookRequest = PagingBookRequest.builder()
+                .keyword("test")
+                .orderBy("title")
+                .direction("asc")
+                .cursor("test-cursor")
+                .after(LocalDateTime.now())
+                .limit(10)
+                .build();
+
+        //when
+        CursorPageResponseBookDto result = bookService.getBooksByPage(pagingBookRequest);
+
+        //then
+        assertNotNull(result);
+        assertNotEquals(0, result.getContent().size());
 
     }
 
