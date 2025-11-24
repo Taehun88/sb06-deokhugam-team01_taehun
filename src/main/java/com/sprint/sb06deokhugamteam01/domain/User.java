@@ -7,12 +7,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 public class User {
 
     @Id
@@ -27,4 +29,20 @@ public class User {
     private LocalDateTime createdAt;
     private boolean isActive;
 
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void updateProfile(String nickname, String password) {
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+        if (password != null && !password.isBlank()) {
+            this.password = password;
+        }
+    }
 }
