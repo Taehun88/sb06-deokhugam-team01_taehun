@@ -6,6 +6,8 @@ import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
+import com.sprint.sb06deokhugamteam01.exception.ErrorCode;
+import com.sprint.sb06deokhugamteam01.exception.RootException;
 import com.sprint.sb06deokhugamteam01.exception.book.*;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import org.jeasy.random.EasyRandom;
@@ -86,12 +88,12 @@ class BookServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        RootException e = assertThrows(NoSuchBookException.class, () -> {
             bookService.getBookById(bookId);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", e.getMessage());
 
     }
 
@@ -125,12 +127,12 @@ class BookServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        RootException exception = assertThrows(NoSuchBookException.class, () -> {
             bookService.getBookByIsbn(isbn);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 
@@ -167,7 +169,7 @@ class BookServiceImplTest {
                 bookDto.author(),
                 bookDto.description(),
                 bookDto.publisher(),
-                LocalDate.now(),
+                bookDto.publishedDate(),
                 bookDto.isbn()
         );
 
@@ -205,17 +207,16 @@ class BookServiceImplTest {
                 "sdfadsfadsf"
         );
 
-        when(bookRepository.existsByIsbn("9788966262084"))
+        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
                 .thenReturn(true);
 
-
         //when
-        AlReadyExistsIsbnException exception = assertThrows(AlReadyExistsIsbnException.class, () -> {
+        RootException exception = assertThrows(AlReadyExistsIsbnException.class, () -> {
             bookService.createBook(bookCreateRequest, null);
         });
 
         //then
-        assertEquals("이미 존재하는 ISBN 입니다.", exception.getMessage());
+        assertEquals("All ready exists ISBN", exception.getMessage());
 
     }
 
@@ -307,11 +308,8 @@ class BookServiceImplTest {
 
         Book updatedBook = BookUpdateRequest.fromDto(updateRequest);
 
-        when(bookRepository.existsById(bookId))
-                .thenReturn(true);
-
-        when(bookRepository.save(any(Book.class)))
-                .thenReturn(updatedBook);
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.of(book));
 
         //when
         BookDto result = bookService.updateBook(bookId, updateRequest, null);
@@ -341,16 +339,16 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
-        when(bookRepository.existsById(bookId))
-                .thenReturn(false);
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.empty());
 
         //when
-        BookInfoFetchFailedException exception = assertThrows(BookInfoFetchFailedException.class, () -> {
+        RootException exception = assertThrows(NoSuchBookException.class, () -> {
             bookService.updateBook(bookDto.id(), updateRequest, null);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 
@@ -378,12 +376,12 @@ class BookServiceImplTest {
         UUID bookId = bookDto.id();
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        RootException exception = assertThrows(NoSuchBookException.class, () -> {
             bookService.deleteBookById(bookId);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 

@@ -56,7 +56,7 @@ public class BookServiceImpl implements  BookService {
 
         //ToDo: S3 파일 업로드 처리
 
-        return bookMapper.toDto(bookRepository.save(book));
+        return BookDto.fromEntity(bookRepository.save(book));
 
     }
 
