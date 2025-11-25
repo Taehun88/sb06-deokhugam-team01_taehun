@@ -29,13 +29,13 @@ public class BookServiceImpl implements  BookService {
 
     @Override
     public BookDto getBookById(UUID id) {
-        return bookMapper.toDto(bookRepository.findById(id)
+        return BookDto.fromEntity(bookRepository.findById(id)
                 .orElseThrow(() -> new NoSuchBookException(detailMap("id", id))));
     }
 
     @Override
     public BookDto getBookByIsbn(String isbn) {
-        return bookMapper.toDto(bookRepository.findByIsbn(isbn)
+        return BookDto.fromEntity(bookRepository.findByIsbn(isbn)
                 .orElseThrow(() -> new NoSuchBookException(detailMap("isbn", isbn))));
     }
 
@@ -52,7 +52,7 @@ public class BookServiceImpl implements  BookService {
             throw new AlReadyExistsIsbnException(detailMap("isbn", bookCreateRequest.isbn()));
         }
 
-        Book book = bookMapper.toNewEntity(bookCreateRequest);
+        Book book = BookCreateRequest.fromDto(bookCreateRequest);
 
         //ToDo: S3 파일 업로드 처리
 
@@ -75,7 +75,7 @@ public class BookServiceImpl implements  BookService {
                 bookUpdateRequest.publishedDate()
         );
 
-        return bookMapper.toDto(book);
+        return BookDto.fromEntity(book);
 
     }
 

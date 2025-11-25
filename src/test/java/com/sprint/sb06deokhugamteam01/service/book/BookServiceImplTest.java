@@ -305,16 +305,7 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
-        Book updatedBook = Book.builder()
-                .id(bookId)
-                .title(updateRequest.title())
-                .author(updateRequest.author())
-                .description(updateRequest.description())
-                .publisher(updateRequest.publisher())
-                .publishedDate(updateRequest.publishedDate())
-                .isbn(bookDto.isbn())
-                .thumbnailUrl(bookDto.thumbnailUrl())
-                .build();
+        Book updatedBook = BookUpdateRequest.fromDto(updateRequest);
 
         when(bookRepository.existsById(bookId))
                 .thenReturn(true);
