@@ -3,10 +3,7 @@ package com.sprint.sb06deokhugamteam01.service.review;
 import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewCreateRequest;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewDto;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewLikeDto;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewOperationRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.*;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.UserRepository;
@@ -32,6 +29,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         Book book = bookRepository.findById(request.bookId()) // TODO 커스텀 예외로 대체
                 .orElseThrow(() -> new IllegalArgumentException("해당 정보를 가진 도서가 존재하지 않습니다."));
+
+        // TODO 사용자는 한 도서에 대해 하나의 리뷰만 남길수 있도록 검증 필요
 
         Review review = Review.builder()
                 .rating(request.rating())
@@ -61,17 +60,17 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Slice<ReviewDto> getReviews() {
+    public CursorPageResponseReviewDto getReviews(CursorPageReviewRequest request) {
         return null;
     }
 
     @Override
-    public Slice<ReviewDto> getPopularReviews() {
+    public CursorPageResponsePopularReviewDto getPopularReviews(CursorPagePopularReviewRequest request) {
         return null;
     }
 
     @Override
-    public ReviewDto updateReview(ReviewOperationRequest request) {
+    public ReviewDto updateReview(ReviewOperationRequest request, ReviewUpdateRequest updateRequest) {
         return null;
     }
 

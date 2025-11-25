@@ -1,13 +1,6 @@
 package com.sprint.sb06deokhugamteam01.service.review;
 
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewCreateRequest;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewDto;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewLikeDto;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewOperationRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.stereotype.Service;
-
-import java.util.UUID;
+import com.sprint.sb06deokhugamteam01.dto.review.*;
 
 public interface ReviewService {
 
@@ -15,11 +8,11 @@ public interface ReviewService {
 
     ReviewDto getReview(ReviewOperationRequest request);
 
-    Slice<ReviewDto> getReviews(); // TODO 페이지네이션 조회 요청 DTO 추가
+    CursorPageResponseReviewDto getReviews(CursorPageReviewRequest request);
 
-    Slice<ReviewDto> getPopularReviews(); // TODO 페이지네이션 조회 요청 DTO 추가
+    CursorPageResponsePopularReviewDto getPopularReviews(CursorPagePopularReviewRequest request);
 
-    ReviewDto updateReview(ReviewOperationRequest request);
+    ReviewDto updateReview(ReviewOperationRequest request, ReviewUpdateRequest updateRequest);
 
     void deleteReview(ReviewOperationRequest request);
 
