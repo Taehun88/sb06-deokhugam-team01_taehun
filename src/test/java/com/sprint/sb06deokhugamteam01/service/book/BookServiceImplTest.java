@@ -8,9 +8,6 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.*;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
-import org.jeasy.random.EasyRandom;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,42 +34,24 @@ class BookServiceImplTest {
     @InjectMocks
     private BookServiceImpl bookService;
 
-    private Book book;
-    private BookDto bookDto;
-
-    @BeforeEach
-    void setUp() {
-
-        EasyRandom easyRandom = new EasyRandom();
-
-        book = easyRandom.nextObject(Book.class);
-        bookDto = BookDto.builder()
-                .id(book.getId())
-                .isbn(book.getIsbn())
-                .title(book.getTitle())
-                .author(book.getAuthor())
-                .description(book.getDescription())
-                .publisher(book.getPublisher())
-                .publishedDate(book.getPublishedDate())
-                .thumbnailUrl(book.getThumbnailUrl())
-                .build();
-
-    }
-
     @Test
     @DisplayName("getBookById 성공 테스트")
     void getBookById_Success() {
 
         //given
-        when(bookRepository.findById(bookDto.id()))
-                .thenReturn(Optional.of(book));
+        UUID bookId = UUID.randomUUID();
+
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.of(Book.builder()
+                                .id(bookId)
+                        .build()));
 
         //when
-        BookDto result = bookService.getBookById(bookDto.id());
+        BookDto result = bookService.getBookById(bookId);
 
         //then
         assertNotNull(result);
-        assertEquals(bookDto.id(), result.id());
+        assertEquals(bookId, result.id());
 
     }
 
@@ -101,10 +80,12 @@ class BookServiceImplTest {
     void getBookByIsbn_Success() {
 
         //given
-        String isbn = bookDto.isbn();
+        String isbn = "9788966262084";
 
         when(bookRepository.findByIsbn(isbn))
-                .thenReturn(Optional.of(book));
+                .thenReturn(Optional.of(Book.builder()
+                        .isbn(isbn)
+                        .build()));
 
         //when
         BookDto result = bookService.getBookByIsbn(isbn);
@@ -154,7 +135,7 @@ class BookServiceImplTest {
 
         //then
         assertNotNull(result);
-        assertNotEquals(1, result.getContent().size());
+        assertNotEquals(0, result.getContent().size());
 
     }
 
@@ -164,19 +145,13 @@ class BookServiceImplTest {
 
         //given
         BookCreateRequest bookCreateRequest = new BookCreateRequest(
-                bookDto.title(),
-                bookDto.author(),
-                bookDto.description(),
-                bookDto.publisher(),
+                "9788966262084",
+                "테스트 도서",
+                "테스트 저자",
+                "테스트 출판사",
                 LocalDate.now(),
-                bookDto.isbn()
+                "sdfadsfadsf"
         );
-
-        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
-                .thenReturn(false);
-
-        when(bookRepository.save(any(Book.class)))
-                .thenReturn(book);
 
         //when
         BookDto result = bookService.createBook(bookCreateRequest, null);
@@ -297,7 +272,7 @@ class BookServiceImplTest {
     void updateBook_Success() {
 
         //given
-        UUID bookId = bookDto.id();
+        String bookId = "existing-book-id";
         BookUpdateRequest updateRequest = BookUpdateRequest.builder()
                 .title("수정된 도서 제목")
                 .author("수정된 저자")
@@ -306,22 +281,14 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
-        Book updatedBook = Book.builder()
+        BookDto expectedDto = BookDto.builder()
                 .id(bookId)
                 .title(updateRequest.title())
                 .author(updateRequest.author())
                 .description(updateRequest.description())
                 .publisher(updateRequest.publisher())
                 .publishedDate(updateRequest.publishedDate())
-                .isbn(bookDto.isbn())
-                .thumbnailUrl(bookDto.thumbnailUrl())
                 .build();
-
-        when(bookRepository.existsById(bookId))
-                .thenReturn(true);
-
-        when(bookRepository.save(any(Book.class)))
-                .thenReturn(updatedBook);
 
         //when
         BookDto result = bookService.updateBook(updateRequest, null);
@@ -342,7 +309,7 @@ class BookServiceImplTest {
     void updateBook_Fail_NoSuchBook() {
 
         //given
-        UUID bookId = bookDto.id();
+        String bookId = "existing-book-id";
         BookUpdateRequest updateRequest = BookUpdateRequest.builder()
                 .title("수정된 도서 제목")
                 .author("수정된 저자")
@@ -369,7 +336,7 @@ class BookServiceImplTest {
     void deleteBookById_Success() {
 
         //given
-        UUID bookId = bookDto.id();
+        UUID bookId = UUID.randomUUID();
 
         //when
 
@@ -385,7 +352,7 @@ class BookServiceImplTest {
     void deleteBookById_Fail_NoSuchBook() {
 
         //given
-        UUID bookId = bookDto.id();
+        UUID bookId = UUID.randomUUID();
 
         //when
         NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
@@ -402,13 +369,7 @@ class BookServiceImplTest {
     void hardDeleteBookById_Success() {
 
         //given
-        UUID bookId = bookDto.id();
-
-        when(bookRepository.existsById(bookId))
-                .thenReturn(true);
-
-        when(bookRepository.findById(bookId))
-                .thenReturn(Optional.of(book));
+        UUID bookId = UUID.randomUUID();
 
         //when
 
@@ -424,7 +385,7 @@ class BookServiceImplTest {
     void hardDeleteBookById_Fail_NoSuchBook() {
 
         //given
-        UUID bookId = bookDto.id();
+        UUID bookId = UUID.randomUUID();
 
         //when
         NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {

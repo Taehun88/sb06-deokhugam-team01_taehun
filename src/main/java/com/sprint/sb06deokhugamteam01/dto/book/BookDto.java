@@ -4,11 +4,10 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Builder
 public record BookDto(
-        UUID id,
+        String id,
         String title,
         String author,
         String description,
