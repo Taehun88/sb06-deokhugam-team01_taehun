@@ -6,6 +6,8 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -37,7 +39,7 @@ public class Book {
 
     private String publisher;
 
-    private LocalDateTime publishedDate;
+    private LocalDate publishedDate;
 
     private String isbn;
 
