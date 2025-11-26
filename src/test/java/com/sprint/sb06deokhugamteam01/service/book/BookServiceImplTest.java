@@ -1,14 +1,14 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
 import com.sprint.sb06deokhugamteam01.domain.Book;
-import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
-import com.sprint.sb06deokhugamteam01.exception.ErrorCode;
 import com.sprint.sb06deokhugamteam01.exception.RootException;
 import com.sprint.sb06deokhugamteam01.exception.book.*;
+import com.sprint.sb06deokhugamteam01.repository.BookQRepository;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,6 +35,9 @@ class BookServiceImplTest {
 
     @Mock
     private BookRepository bookRepository;
+
+    @Mock
+    private BookQRepository bookQRepository;
 
     @InjectMocks
     private BookServiceImpl bookService;
@@ -150,12 +154,18 @@ class BookServiceImplTest {
                 .limit(10)
                 .build();
 
+        when(bookRepository.count())
+                .thenReturn(100L);
+
+        when(bookQRepository.findBooksByKeyword(pagingBookRequest))
+                .thenReturn(new SliceImpl<>(java.util.Collections.nCopies(11, book)));
+
         //when
         CursorPageResponseBookDto result = bookService.getBooksByPage(pagingBookRequest);
 
         //then
         assertNotNull(result);
-        assertNotEquals(1, result.getContent().size());
+        assertNotEquals(pagingBookRequest.limit(), result.getContent().size());
 
     }
 
