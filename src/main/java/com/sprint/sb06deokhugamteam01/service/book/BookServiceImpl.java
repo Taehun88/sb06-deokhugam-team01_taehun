@@ -8,14 +8,17 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.AlReadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.repository.BookQRepository;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,6 +27,7 @@ import java.util.UUID;
 public class BookServiceImpl implements  BookService {
 
     private final BookRepository bookRepository;
+    private final BookQRepository bookQRepository;
 
     @Override
     public BookDto getBookById(UUID id) {
@@ -40,9 +44,27 @@ public class BookServiceImpl implements  BookService {
     @Override
     public CursorPageResponseBookDto getBooksByPage(PagingBookRequest pagingBookRequest) {
 
+        Slice<Book> bookSlice = bookQRepository.findBooksByKeyword(pagingBookRequest);
 
+        return CursorPageResponseBookDto.builder()
+                .content(bookSlice.getContent().stream()
+                        .map(BookDto::fromEntity)
+                        .limit(bookSlice.getContent().size() - (bookSlice.hasNext() ? 1 : 0))
+                        .toList())
+                .nextCursor(bookSlice.hasNext() ?
+                        switch (pagingBookRequest.orderBy()) {
+                            case TITLE -> bookSlice.getContent().get(bookSlice.getContent().size() -1).getTitle();
+                            case PUBLISHED_DATE -> bookSlice.getContent().get(bookSlice.getContent().size() -1).getPublishedDate().toString();
+                            case RATING -> String.valueOf(bookSlice.getContent().get(bookSlice.getContent().size() -1).getRating());
+                            case REVIEW_COUNT -> String.valueOf(bookSlice.getContent().get(bookSlice.getContent().size() -1).getReviewCount());
+                        } : null)
+                .nextAfter(bookSlice.hasNext() ?
+                        bookSlice.getContent().get(bookSlice.getContent().size() -1).getCreatedAt().toString() : null)
+                .size(pagingBookRequest.limit())
+                .totalElements((int) bookRepository.count())
+                .hasNext(bookSlice.hasNext())
+                .build();
 
-        return null;
     }
 
     @Transactional
