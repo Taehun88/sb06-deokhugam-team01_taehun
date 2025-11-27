@@ -1,7 +1,6 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
-import com.sprint.sb06deokhugamteam01.dto.User.request.UserUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.response.UserDto;
 import com.sprint.sb06deokhugamteam01.service.user.UserService;
 import jakarta.validation.Valid;
