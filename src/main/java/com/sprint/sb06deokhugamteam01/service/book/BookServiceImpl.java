@@ -1,6 +1,7 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
 import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
@@ -10,6 +11,8 @@ import com.sprint.sb06deokhugamteam01.exception.book.AlReadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
 import com.sprint.sb06deokhugamteam01.repository.BookQRepository;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
+import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Slice;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,6 +31,8 @@ public class BookServiceImpl implements  BookService {
 
     private final BookRepository bookRepository;
     private final BookQRepository bookQRepository;
+    private final CommentRepository commentRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public BookDto getBookById(UUID id) {
@@ -122,7 +128,10 @@ public class BookServiceImpl implements  BookService {
 
         bookRepository.deleteById(id);
 
-        //ToDo: 연관관계 매핑된 리뷰들 모두 삭제하기
+        //연관관계 매핑된 리뷰들 모두 삭제하기
+        List<Review> reviewList = reviewRepository.findByBookId(id);
+        commentRepository.deleteByReviewList(reviewList);
+        reviewRepository.deleteByBookId(id);
 
     }
 
