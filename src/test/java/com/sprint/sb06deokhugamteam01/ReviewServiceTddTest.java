@@ -93,30 +93,31 @@ class ReviewServiceTddTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
+
         testBook = Book.builder()
-                .id(bookId)
+                // .id(bookId)
                 .title("testBook")
                 .author("author")
                 .publisher("publisher")
                 .publishedDate(LocalDate.now())
-                .reviewCount(10)
-                .rating(4.5)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .isActive(true)
+                // .reviewCount(10)
+                // .rating(4.5)
+                // .createdAt(LocalDateTime.now())
+                // .updatedAt(LocalDateTime.now())
+                // .isActive(true)
                 .build();
 
         testBook2 = Book.builder()
-                .id(bookId2)
+                // .id(bookId2)
                 .title("testBook2")
                 .author("author2")
                 .publisher("publisher2")
                 .publishedDate(LocalDate.now())
-                .reviewCount(10)
-                .rating(4.0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .isActive(true)
+                // .reviewCount(10)
+                // .rating(4.0)
+                // .createdAt(LocalDateTime.now())
+                // .updatedAt(LocalDateTime.now())
+                // .isActive(true)
                 .build();
 
         testReview = Review.builder()
