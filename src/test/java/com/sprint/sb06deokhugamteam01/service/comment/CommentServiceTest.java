@@ -6,13 +6,14 @@ import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.dto.CommentCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.CommentDto;
 import com.sprint.sb06deokhugamteam01.dto.CommentUpdateRequest;
+import com.sprint.sb06deokhugamteam01.exception.ReviewNotFoundException; //임의로 만듦
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentAccessDeniedException;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.UserRepository;
-import com.sprint.sb06deokhugamteam01.service.CommentService;
+import com.sprint.sb06deokhugamteam01.service.CommentServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,7 +42,7 @@ public class CommentServiceTest {
     private ReviewRepository reviewRepository;
 
     @InjectMocks
-    private CommentService commentService;
+    private CommentServiceImpl commentService;
 
 
     // TODO: Easy Random 사용... 추후 변경
@@ -123,16 +123,18 @@ public class CommentServiceTest {
         // given
         UUID userId = UUID.randomUUID();
         UUID commentId = UUID.randomUUID();
+        UUID reviewId = UUID.randomUUID();
 
-        User user = User.builder().build();
+        User user = User.builder().nickname("유저").build();
         ReflectionTestUtils.setField(user, "id", userId);
-        Comment comment = Comment.builder().user(user).build();
+        Review review  = Review.builder().build();
+        ReflectionTestUtils.setField(review, "id", reviewId);
+        Comment comment = Comment.builder().user(user).review(review).build();
         ReflectionTestUtils.setField(comment, "id", commentId);
 
         String newContent = "수정된 댓글";
 
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
-        given(commentRepository.save(comment)).willReturn(comment);
 
         CommentUpdateRequest request = new CommentUpdateRequest(newContent);
 
@@ -177,7 +179,7 @@ public class CommentServiceTest {
         CommentUpdateRequest request = new CommentUpdateRequest("수정된 댓글");
 
         // when & then
-        assertThatThrownBy(() -> commentService.updateComment(anotherUserId, commentId, request))
+        assertThatThrownBy(() -> commentService.updateComment(commentId, anotherUserId, request))
                 .isInstanceOf(CommentAccessDeniedException.class);
     }
 

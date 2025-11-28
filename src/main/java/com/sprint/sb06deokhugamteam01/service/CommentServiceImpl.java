@@ -6,6 +6,7 @@ import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.dto.CommentCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.CommentDto;
 import com.sprint.sb06deokhugamteam01.dto.CommentUpdateRequest;
+import com.sprint.sb06deokhugamteam01.exception.ReviewNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentAccessDeniedException;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
