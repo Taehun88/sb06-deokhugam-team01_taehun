@@ -1,8 +1,8 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
-import com.sprint.sb06deokhugamteam01.dto.CommentCreateRequest;
-import com.sprint.sb06deokhugamteam01.dto.CommentDto;
-import com.sprint.sb06deokhugamteam01.dto.CommentUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentCreateRequest;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentUpdateRequest;
 import com.sprint.sb06deokhugamteam01.service.comment.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +42,27 @@ public class CommentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updatedComment);
+    }
+
+    @DeleteMapping(path = "/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable("commentId") UUID commentId,
+                                                    @RequestHeader("Deokhugam-Request-User-ID") UUID userId) {
+        log.info("댓글 논리 삭제 요청: commentId={}, userId={}", commentId, userId);
+        commentService.deleteComment(commentId, userId);
+        log.debug("댓글 논리 삭제 응답: commentId={}", commentId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(null);
+    }
+
+    @DeleteMapping(path = "/{commentId}/hard")
+    public ResponseEntity<Void> hardDeleteComment(@PathVariable("commentId") UUID commentId,
+                                                        @RequestHeader("Deokhugam-Request-User-ID") UUID userId) {
+        log.info("댓글 물리 삭제 요청: commentId={}, userId={}", commentId, userId);
+        commentService.hardDeleteComment(commentId, userId);
+        log.debug("댓글 물리 삭제 응답: commentId={}", commentId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(null);
     }
 }

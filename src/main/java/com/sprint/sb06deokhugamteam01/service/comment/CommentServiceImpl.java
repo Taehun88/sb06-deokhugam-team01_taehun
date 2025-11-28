@@ -3,9 +3,9 @@ package com.sprint.sb06deokhugamteam01.service.comment;
 import com.sprint.sb06deokhugamteam01.domain.Comment;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.dto.CommentCreateRequest;
-import com.sprint.sb06deokhugamteam01.dto.CommentDto;
-import com.sprint.sb06deokhugamteam01.dto.CommentUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentCreateRequest;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentUpdateRequest;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentAccessDeniedException;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
@@ -58,5 +58,29 @@ public class CommentServiceImpl implements CommentService {
         comment.update(request.content());
         log.info("댓글 수정 완료: commentId={}", commentId);
         return CommentDto.from(comment);
+    }
+
+    @Transactional
+    @Override
+    public void deleteComment(UUID commentId, UUID userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(Map.of("commentId", commentId)));
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new CommentAccessDeniedException(Map.of("userId", userId));
+        }
+        comment.markAsDeleted();
+        log.info("댓글 논리 삭제 완료: commentId={}", commentId);
+    }
+
+    @Transactional
+    @Override
+    public void hardDeleteComment(UUID commentId, UUID userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(Map.of("commentId", commentId)));
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new CommentAccessDeniedException(Map.of("userId", userId));
+        }
+        commentRepository.delete(comment);
+        log.info("댓글 물리 삭제 완료: commentId={}", commentId);
     }
 }

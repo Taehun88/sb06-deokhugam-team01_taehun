@@ -3,9 +3,9 @@ package com.sprint.sb06deokhugamteam01.service.comment;
 import com.sprint.sb06deokhugamteam01.domain.Comment;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.dto.CommentCreateRequest;
-import com.sprint.sb06deokhugamteam01.dto.CommentDto;
-import com.sprint.sb06deokhugamteam01.dto.CommentUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentCreateRequest;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.CommentUpdateRequest;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentAccessDeniedException;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
@@ -76,7 +76,6 @@ public class CommentServiceTest {
         assertThat(result.userNickname()).isEqualTo("유저");
         verify(commentRepository).save(any(Comment.class));
     }
-
     @Test
     @DisplayName("존재하지 않는 유저로 댓글 등록 시도 시 실패")
     void createComment_NotFoundUser_Fail(){
@@ -93,7 +92,6 @@ public class CommentServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
         verify(commentRepository, never()).save(any(Comment.class));
     }
-
     @Test
     @DisplayName("존재하지 않는 리뷰로 댓글 등록 시도 시 실패")
     void createComment_NotFoundReview_Fail(){
@@ -143,7 +141,6 @@ public class CommentServiceTest {
         // then
         assertThat(result.content()).isEqualTo(newContent);
     }
-
     @Test
     @DisplayName("존재하지 않는 댓글로 수정 실패")
     void updateComment_CommentNotFound_Fail(){
@@ -159,7 +156,6 @@ public class CommentServiceTest {
         assertThatThrownBy(() -> commentService.updateComment(invalidCommentId, userId, request))
                 .isInstanceOf(CommentNotFoundException.class);
     }
-
     @Test
     @DisplayName("요청자 아이디와 작성자 아이디 불일치로 수정 실패")
     void updateComment_AccessDenied_Fail(){
@@ -183,4 +179,110 @@ public class CommentServiceTest {
     }
 
 
+    @Test
+    @DisplayName("댓글 논리 삭제 성공")
+    void deleteComment_Success(){
+        // given
+        UUID commentId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        User user = User.builder().build();
+        ReflectionTestUtils.setField(user, "id", userId);
+        Comment comment = Comment.builder().user(user).build();
+        ReflectionTestUtils.setField(comment, "id", commentId);
+
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // when
+        commentService.deleteComment(commentId, userId);
+
+        // then
+        assertThat(comment.isActive()).isFalse();
+    }
+    @Test
+    @DisplayName("존재하지 않는 댓글로 논리 삭제 실패")
+    void deleteComment_CommentNotFound_Fail(){
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID invalidCommentId = UUID.randomUUID();
+
+        given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> commentService.deleteComment(invalidCommentId, userId))
+                .isInstanceOf(CommentNotFoundException.class);
+    }
+    @Test
+    @DisplayName("요청자 아이디와 작성자 아이디 불일치로 논리 삭제 실패")
+    void deleteComment_AccessDenied_Fail(){
+        // given
+        UUID ownerId = UUID.randomUUID();
+        UUID anotherUserId = UUID.randomUUID();
+        UUID commentId = UUID.randomUUID();
+
+        User owner = User.builder().build();
+        ReflectionTestUtils.setField(owner, "id", ownerId);
+        Comment comment = Comment.builder().user(owner).build();
+        ReflectionTestUtils.setField(comment, "id", commentId);
+
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // when & then
+        assertThatThrownBy(() -> commentService.deleteComment(commentId, anotherUserId))
+                .isInstanceOf(CommentAccessDeniedException.class);
+    }
+    @Test
+    @DisplayName("댓글 물리 삭제 성공")
+    void hardDeleteComment_Success(){
+        // given
+        UUID commentId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        User user = User.builder().build();
+        ReflectionTestUtils.setField(user, "id", userId);
+        Comment comment = Comment.builder().user(user).build();
+        ReflectionTestUtils.setField(comment, "id", commentId);
+
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // when
+        commentService.hardDeleteComment(commentId, userId);
+
+        // then
+        verify(commentRepository).delete(comment);
+    }
+    @Test
+    @DisplayName("존재하지 않는 댓글로 물리 삭제 실패")
+    void hardDeleteComment_CommentNotFound_Fail(){
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID invalidCommentId = UUID.randomUUID();
+
+        given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> commentService.hardDeleteComment(invalidCommentId, userId))
+                .isInstanceOf(CommentNotFoundException.class);
+        verify(commentRepository, never()).delete(any(Comment.class));
+    }
+    @Test
+    @DisplayName("요청자 아이디와 작성자 아이디 불일치로 물리 삭제 실패")
+    void hardDeleteComment_AccessDenied_Fail(){
+        // given
+        UUID ownerId = UUID.randomUUID();
+        UUID anotherUserId = UUID.randomUUID();
+        UUID commentId = UUID.randomUUID();
+
+        User owner = User.builder().build();
+        ReflectionTestUtils.setField(owner, "id", ownerId);
+        Comment comment = Comment.builder().user(owner).build();
+        ReflectionTestUtils.setField(comment, "id", commentId);
+
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // when & then
+        assertThatThrownBy(() -> commentService.hardDeleteComment(commentId, anotherUserId))
+                .isInstanceOf(CommentAccessDeniedException.class);
+        verify(commentRepository, never()).delete(any(Comment.class));
+    }
 }
