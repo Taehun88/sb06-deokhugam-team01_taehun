@@ -20,9 +20,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
-@Builder
-@Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Book {
@@ -46,15 +43,39 @@ public class Book {
 
     private String thumbnailUrl;
 
-    private int reviewCount;
+    private int reviewCount = 0;
 
-    private double rating;
+    private double rating = 0.0;
 
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private boolean isActive;
+    private boolean isActive = true;
+
+    @Builder
+    public Book(String title, String author, String description, String publisher, LocalDate publishedDate, String isbn) {
+
+        this.title = title;
+        this.author = author;
+        this.description = description;
+        this.publisher = publisher;
+        this.publishedDate = publishedDate;
+        this.isbn = isbn;
+
+    }
+
+    public void updateBook(String title, String author, String description, String publisher, LocalDate publishedDate) {
+        this.title = title;
+        this.author = author;
+        this.description = description;
+        this.publisher = publisher;
+        this.publishedDate = publishedDate;
+    }
+
+    public void softDelete() {
+        this.isActive = false;
+    }
 
 }

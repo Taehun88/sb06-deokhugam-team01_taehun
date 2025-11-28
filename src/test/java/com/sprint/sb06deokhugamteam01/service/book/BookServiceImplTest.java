@@ -1,15 +1,16 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
 import com.sprint.sb06deokhugamteam01.domain.Book;
-import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.*;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
+import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.ReviewRepository;
 import org.jeasy.random.EasyRandom;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,12 +18,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.nCopies;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -33,6 +37,12 @@ class BookServiceImplTest {
 
     @Mock
     private BookRepository bookRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
+
+    @Mock
+    private ReviewRepository reviewRepository;
 
     @InjectMocks
     private BookServiceImpl bookService;
@@ -87,12 +97,12 @@ class BookServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        NoSuchBookException e = assertThrows(NoSuchBookException.class, () -> {
             bookService.getBookById(bookId);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", e.getMessage());
 
     }
 
@@ -131,7 +141,7 @@ class BookServiceImplTest {
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 
@@ -142,19 +152,25 @@ class BookServiceImplTest {
         //given
         PagingBookRequest pagingBookRequest = PagingBookRequest.builder()
                 .keyword("test")
-                .orderBy("title")
-                .direction("asc")
+                .orderBy(PagingBookRequest.OrderBy.valueOf("title".toUpperCase()))
+                .direction(PagingBookRequest.SortDirection.ASC)
                 .cursor("test-cursor")
                 .after(LocalDateTime.now())
                 .limit(10)
                 .build();
+
+        when(bookRepository.count())
+                .thenReturn(100L);
+
+        when(bookRepository.findBooksByKeyword(pagingBookRequest))
+                .thenReturn(new SliceImpl<>(nCopies(11, book)));
 
         //when
         CursorPageResponseBookDto result = bookService.getBooksByPage(pagingBookRequest);
 
         //then
         assertNotNull(result);
-        assertNotEquals(1, result.getContent().size());
+        assertNotEquals(pagingBookRequest.limit(), result.getContent().size());
 
     }
 
@@ -168,7 +184,7 @@ class BookServiceImplTest {
                 bookDto.author(),
                 bookDto.description(),
                 bookDto.publisher(),
-                LocalDate.now(),
+                bookDto.publishedDate(),
                 bookDto.isbn()
         );
 
@@ -206,17 +222,16 @@ class BookServiceImplTest {
                 "sdfadsfadsf"
         );
 
-        when(bookRepository.existsByIsbn("9788966262084"))
+        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
                 .thenReturn(true);
 
-
         //when
-        AllReadyExistsIsbnException exception = assertThrows(AllReadyExistsIsbnException.class, () -> {
+        AlreadyExistsIsbnException exception = assertThrows(AlreadyExistsIsbnException.class, () -> {
             bookService.createBook(bookCreateRequest, null);
         });
 
         //then
-        assertEquals("이미 존재하는 ISBN 입니다.", exception.getMessage());
+        assertEquals("All ready exists ISBN", exception.getMessage());
 
     }
 
@@ -306,25 +321,13 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
-        Book updatedBook = Book.builder()
-                .id(bookId)
-                .title(updateRequest.title())
-                .author(updateRequest.author())
-                .description(updateRequest.description())
-                .publisher(updateRequest.publisher())
-                .publishedDate(updateRequest.publishedDate())
-                .isbn(bookDto.isbn())
-                .thumbnailUrl(bookDto.thumbnailUrl())
-                .build();
+        Book updatedBook = BookUpdateRequest.fromDto(updateRequest);
 
-        when(bookRepository.existsById(bookId))
-                .thenReturn(true);
-
-        when(bookRepository.save(any(Book.class)))
-                .thenReturn(updatedBook);
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.of(book));
 
         //when
-        BookDto result = bookService.updateBook(updateRequest, null);
+        BookDto result = bookService.updateBook(bookId, updateRequest, null);
 
         //then
         assertNotNull(result);
@@ -351,16 +354,16 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
-        when(bookRepository.existsById(bookId))
-                .thenReturn(false);
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.empty());
 
         //when
-        BookInfoFetchFailedException exception = assertThrows(BookInfoFetchFailedException.class, () -> {
-            bookService.updateBook(updateRequest, null);
+        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+            bookService.updateBook(bookDto.id(), updateRequest, null);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 
@@ -393,7 +396,7 @@ class BookServiceImplTest {
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 
@@ -407,8 +410,8 @@ class BookServiceImplTest {
         when(bookRepository.existsById(bookId))
                 .thenReturn(true);
 
-        when(bookRepository.findById(bookId))
-                .thenReturn(Optional.of(book));
+        when(reviewRepository.findByBook_Id(bookId))
+                .thenReturn(emptyList());
 
         //when
 
@@ -432,7 +435,7 @@ class BookServiceImplTest {
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 

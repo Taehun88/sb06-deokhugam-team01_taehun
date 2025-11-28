@@ -1,7 +1,15 @@
 package com.sprint.sb06deokhugamteam01.exception.book;
 
-public class BookInfoFetchFailedException extends RuntimeException {
-    public BookInfoFetchFailedException(String message) {
-        super(message);
+import com.sprint.sb06deokhugamteam01.exception.ErrorCode;
+import com.sprint.sb06deokhugamteam01.exception.RootException;
+
+import java.util.Map;
+
+public class BookInfoFetchFailedException extends RootException {
+
+    ErrorCode errorCode = ErrorCode.BOOK_INFO_FETCH_FAILED;
+
+    public BookInfoFetchFailedException(Map<String, Object> details) {
+        super(ErrorCode.BOOK_INFO_FETCH_FAILED, details);
     }
 }

@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.dto.book;
 
+import com.sprint.sb06deokhugamteam01.domain.Book;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -21,4 +22,24 @@ public record BookDto(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
+
+    public static BookDto fromEntity(Book book) {
+
+        return BookDto.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .description(book.getDescription())
+                .publisher(book.getPublisher())
+                .publishedDate(book.getPublishedDate())
+                .isbn(book.getIsbn())
+                .thumbnailUrl(book.getThumbnailUrl())
+                .reviewCount(book.getReviewCount())
+                .rating(book.getRating())
+                .createdAt(book.getCreatedAt())
+                .updatedAt(book.getUpdatedAt())
+                .build();
+
+    }
+
 }
