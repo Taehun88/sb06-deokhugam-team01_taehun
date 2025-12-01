@@ -1,11 +1,13 @@
 package com.sprint.sb06deokhugamteam01.dto.book.request;
 
+import lombok.Builder;
 import com.sprint.sb06deokhugamteam01.domain.Book;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
+@Builder
 public record BookCreateRequest(
         @NotBlank(message = "제목은 비어 있을 수 없습니다.")
         String title,

@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,9 +42,9 @@ public class Book {
 
     private String thumbnailUrl;
 
-    private int reviewCount = 0;
+    private int reviewCount;
 
-    private double rating = 0.0;
+    private double rating;
 
     @CreatedDate
     private LocalDateTime createdAt;

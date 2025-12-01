@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -23,6 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Getter
 public class Notification {
 
     @Id
@@ -46,4 +48,8 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "review_id")
     private Review review;
+
+    public void confirm() {
+        this.confirmed = true;
+    }
 }

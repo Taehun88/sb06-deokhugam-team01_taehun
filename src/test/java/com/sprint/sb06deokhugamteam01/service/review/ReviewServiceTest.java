@@ -6,6 +6,7 @@ import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.review.ReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.review.*;
+import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.UserRepository;
@@ -239,7 +240,7 @@ class ReviewServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reviewService.getReview(requestReviewId, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
+                .isInstanceOf(ReviewNotFoundException.class);
 
         verify(userRepository, times(1)).findById(requestUserId);
         verify(reviewRepository, times(1)).findById(reviewId);
@@ -508,7 +509,7 @@ class ReviewServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reviewService.likeReview(requestReviewId, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
+                .isInstanceOf(ReviewNotFoundException.class);
 
         verify(reviewRepository, never()).save(any());
     }
