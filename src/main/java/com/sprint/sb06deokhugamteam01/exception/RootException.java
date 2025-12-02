@@ -1,9 +1,12 @@
 package com.sprint.sb06deokhugamteam01.exception;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class RootException extends RuntimeException {
 
     private LocalDateTime timestamp;
