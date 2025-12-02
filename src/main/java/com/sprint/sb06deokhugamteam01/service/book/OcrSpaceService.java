@@ -3,6 +3,7 @@ package com.sprint.sb06deokhugamteam01.service.book;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.sb06deokhugamteam01.exception.book.BookInfoFetchFailedException;
 import lombok.Builder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import java.util.regex.Pattern;
 
 public class OcrSpaceService implements OcrService{
 
-    private String ocrSpaceApiEndpoint = "https://api.ocr.space/parse/image";
+    @Value("${ocr.space.api.endpoint}")
+    private String ocrSpaceApiEndpoint;
+    @Value("${ocr.space.api.key}")
     private String apiKey;
 
     @Override

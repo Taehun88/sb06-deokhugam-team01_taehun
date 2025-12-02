@@ -19,3 +19,8 @@ naver:
     endpoint: https://openapi.naver.com/v1/search/book_adv.json
     client-id: ${NAVER_API_CLIENT_ID}
     client-secret: ${NAVER_API_CLIENT_SECRET}
+ocr:
+  space:
+    api:
+      endpoint: https://kapi.kakao.com/v1/vision/text/ocr
+      key: ${KAKAO_OCR_ADMIN_KEY}
