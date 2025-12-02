@@ -21,8 +21,8 @@ import java.util.Map;
 public class NaverBookSearchService implements BookSearchService{
 
     private String naverApiEndpoint = "https://openapi.naver.com/v1/search/book_adv.json";
-    private String apiClientId = "OS6JJt8URs4fraJUGKgE";
-    private String apiClientSecret = "eLwWy1nIie";
+    private String apiClientId;
+    private String apiClientSecret;
 
     @Override
     public BookDto searchBookByIsbn(String isbn) {
