@@ -37,10 +37,7 @@ public class NaverBookSearchService implements BookSearchService{
                 .header("X-Naver-Client-Id", apiClientId)
                 .header("X-Naver-Client-Secret", apiClientSecret)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, ((request, response) -> {
-                    throw new InvalidIsbnException(detailMap("isbn", isbn));
-                }))
-                .onStatus(HttpStatusCode::is5xxServerError, ((request, response) -> {
+                .onStatus(HttpStatusCode::isError, ((request, response) -> {
                     throw new BookInfoFetchFailedException(detailMap("isbn", isbn));
                 }))
                 .body(NaverBookSearchResponse.class);
