@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.sb06deokhugamteam01.exception.book.BookInfoFetchFailedException;
 import lombok.Builder;
 import org.springframework.web.client.RestClient;
@@ -33,9 +34,8 @@ public class OcrSpaceService implements OcrService{
                 .retrieve()
                 .body(OcrResult.class);
 
-        if (ocrResult != null && ocrResult.ParsedResults().length > 0) {
-            String parsedText = ocrResult.ParsedResults()[0].ParsedText();
-            return parseIsbnFromOcrResult(parsedText);
+        if (ocrResult != null && ocrResult.parsedResults.length > 0) {
+            return parseIsbnFromOcrResult(ocrResult.parsedResults[0].parsedText);
         } else {
             throw new BookInfoFetchFailedException(detailMap("message", "OCR processing failed or returned no results."));
         }
@@ -71,20 +71,40 @@ public class OcrSpaceService implements OcrService{
     }
 
     public record OcrResult(
-            ParsedResult[] ParsedResults,
-            int OCRExitCode,
-            boolean IsErroredOnProcessing,
-            double ProcessingTimeInMilliseconds,
-            String SearchablePDFURL
+            @JsonProperty("ParsedResults")
+            ParsedResult[] parsedResults,
+
+            @JsonProperty("OCRExitCode")
+            int ocrExitCode,
+
+            @JsonProperty("IsErroredOnProcessing")
+            boolean isErroredOnProcessing,
+
+            @JsonProperty("ProcessingTimeInMilliseconds")
+            double processingTimeInMilliseconds,
+
+            @JsonProperty("SearchablePDFURL")
+            String searchablePDFURL
     ) {}
 
     public record ParsedResult(
-            String Overlay,
-            int FileParseExitCode,
-            String TextOrientation,
-            String ParsedText,
-            String ErrorMessage,
-            String ErrorDetails
+            @JsonProperty("Overlay")
+            String overlay,
+
+            @JsonProperty("FileParseExitCode")
+            int fileParseExitCode,
+
+            @JsonProperty("TextOrientation")
+            String textOrientation,
+
+            @JsonProperty("ParsedText")
+            String parsedText,
+
+            @JsonProperty("ErrorMessage")
+            String errorMessage,
+
+            @JsonProperty("ErrorDetails")
+            String errorDetails
     ) {}
 
     private Map<String, Object> detailMap(String key, Object value) {
