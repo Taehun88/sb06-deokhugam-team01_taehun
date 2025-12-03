@@ -47,9 +47,6 @@ class ReviewServiceTest {
     @Mock
     private BookRepository bookRepository;
 
-    @Mock
-    private CommentRepository commentRepository;
-
     @InjectMocks
     private ReviewServiceImpl reviewService;
 

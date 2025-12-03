@@ -44,13 +44,6 @@ class ReviewRepositoryTest {
     @Autowired
     private EntityManager em; // 데이터 준비를 위해 사용
 
-    // 테스트용 상수
-    private final UUID USER_ID_1 = UUID.randomUUID();
-    private final UUID USER_ID_2 = UUID.randomUUID();
-    private final UUID REQUEST_USER_ID = UUID.randomUUID();
-    private final UUID BOOK_ID_A = UUID.randomUUID();
-    private final UUID BOOK_ID_B = UUID.randomUUID();
-
     private User testUser1;
     private User testUser2;
     private User testRequestUser;
@@ -67,7 +60,6 @@ class ReviewRepositoryTest {
         reviewRepository.deleteAll();
 
         testUser1 = User.builder()
-//                .id(USER_ID_1)
                 .email("testUser@testUser.com")
                 .nickname("testUser")
                 .password("testUser")
@@ -77,7 +69,6 @@ class ReviewRepositoryTest {
         testUser1 = em.merge(testUser1);
 
         testUser2 = User.builder()
-//                .id(USER_ID_2)
                 .email("testUser2@testUser2.com")
                 .nickname("testUser2")
                 .password("testUser2")
@@ -87,7 +78,6 @@ class ReviewRepositoryTest {
         testUser2 = em.merge(testUser2);
 
         testRequestUser = User.builder()
-//                .id(REQUEST_USER_ID)
                 .email("requestUser@requestUser.com")
                 .nickname("requestUser")
                 .password("requestUser")
@@ -113,7 +103,6 @@ class ReviewRepositoryTest {
         testBook2 = em.merge(testBook2);
 
         testReview1 = Review.builder()
-//                .id(UUID.randomUUID()) // ID 명시적 생성
                 .rating(5)
                 .likeCount(50)
                 .isActive(true)
@@ -125,7 +114,6 @@ class ReviewRepositoryTest {
         testReview1 = em.merge(testReview1);
 
         testReview2 = Review.builder()
-//                .id(UUID.randomUUID())
                 .rating(4)
                 .likeCount(40)
                 .isActive(true)
@@ -137,7 +125,6 @@ class ReviewRepositoryTest {
         testReview2 = em.merge(testReview2);
 
         testReview3 = Review.builder()
-//                .id(UUID.randomUUID())
                 .rating(3)
                 .likeCount(30)
                 .isActive(true)
@@ -149,7 +136,6 @@ class ReviewRepositoryTest {
         testReview3 = em.merge(testReview3);
 
         testReview4 = Review.builder()
-//                .id(UUID.randomUUID())
                 .rating(2)
                 .likeCount(20)
                 .isActive(false)
