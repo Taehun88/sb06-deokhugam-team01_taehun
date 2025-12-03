@@ -6,7 +6,7 @@ import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.notification.NotificationRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
-import com.sprint.sb06deokhugamteam01.service.notification.NotificationService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,7 @@ public class DeleteDeactivatedDataService {
 
     @Transactional
     public void deleteDeactivatedNotifications() {
-        notificationRepository.deleteAllByConfirmedTrue();
+        notificationRepository.deleteByConfirmedIsTrueAndUpdatedAtBefore(LocalDateTime.now().minusDays(7));
     }
 
     @Transactional
