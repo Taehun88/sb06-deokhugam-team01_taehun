@@ -83,7 +83,7 @@ class BookControllerTest {
 
         //when
         when(bookService.getBooksByPage(any(PagingBookRequest.class)))
-                .thenReturn(response);
+            .thenReturn(response);
 
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/books")
