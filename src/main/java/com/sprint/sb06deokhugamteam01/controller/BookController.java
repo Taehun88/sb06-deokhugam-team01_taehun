@@ -66,6 +66,17 @@ public class BookController {
 
     }
 
+    @PostMapping("/isbn/ocr")
+    public ResponseEntity<BookInfo> createBookByIsbnImage(
+            @RequestParam("image") MultipartFile image) {
+        log.info("Received Book create by OCR ISBN request");
+        BookDto createdBook = bookService.createBookByIsbnImage(image);
+        log.info("Book created successfully: {}", createdBook);
+
+        return new ResponseEntity<>(BookInfo.fromDto(createdBook), HttpStatus.CREATED);
+
+    }
+
     @GetMapping("/{bookId}")
     public ResponseEntity<BookDto> getBookById(
             @PathVariable UUID bookId) {

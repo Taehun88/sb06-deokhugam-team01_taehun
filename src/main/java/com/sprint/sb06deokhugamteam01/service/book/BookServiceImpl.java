@@ -97,7 +97,7 @@ public class BookServiceImpl implements  BookService {
 
         String isbn = null;
         try {
-            isbn = ocrService.extractIsbnFromImage(image.getBytes(), image.getName().split("\\.")[1]);
+            isbn = ocrService.extractIsbnFromImage(image.getBytes(), image.getOriginalFilename().split("\\.")[1]);
         } catch (IOException e) {
             throw new InvalidIsbnException(new HashMap<>());
         }

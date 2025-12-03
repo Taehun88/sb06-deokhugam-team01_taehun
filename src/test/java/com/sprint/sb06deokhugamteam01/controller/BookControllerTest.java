@@ -217,6 +217,35 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("createBookByIsbnImage 성공 테스트")
+    void createBookByIsbnImage_Success() throws Exception {
+
+        //given
+        String isbn = "1234567890";
+        MockMultipartFile thumbnailImage = new MockMultipartFile(
+                "thumbnailImage.jpg",
+                "thumbnail.jpg",
+                MediaType.MULTIPART_FORM_DATA_VALUE,
+                "Sample Image Content".getBytes()
+        );
+
+        //when
+        when(bookService.createBookByIsbnImage(any(MultipartFile.class)))
+                .thenReturn(bookDto);
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/api/books/isbn/ocr")
+                        .file("image", thumbnailImage.getBytes())
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value(bookDto.title()))
+                .andExpect(jsonPath("$.author").value(bookDto.author()))
+                .andExpect(jsonPath("$.isbn").value(bookDto.isbn()));
+
+    }
+
+    @Test
     @DisplayName("getBookById 성공 테스트")
     void getBookById_Success() throws Exception {
 
