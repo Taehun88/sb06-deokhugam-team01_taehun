@@ -1,4 +1,4 @@
-package com.sprint.sb06deokhugamteam01.repository;
+package com.sprint.sb06deokhugamteam01.repository.user;
 
 import com.sprint.sb06deokhugamteam01.domain.User;
 import java.time.LocalDateTime;

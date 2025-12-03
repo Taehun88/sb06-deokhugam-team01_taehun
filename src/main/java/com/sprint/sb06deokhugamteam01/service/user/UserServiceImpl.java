@@ -2,14 +2,13 @@ package com.sprint.sb06deokhugamteam01.service.user;
 
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
-import com.sprint.sb06deokhugamteam01.dto.User.request.UserUpdateRequest;
-import com.sprint.sb06deokhugamteam01.dto.User.response.UserDto;
 import com.sprint.sb06deokhugamteam01.exception.common.UnauthorizedAccessException;
 import com.sprint.sb06deokhugamteam01.exception.user.InvalidUserException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
-import com.sprint.sb06deokhugamteam01.repository.UserRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +100,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void purgeDeletedUsersBefore(LocalDateTime cutoff) {
         userRepository.deleteAllSoftDeletedBefore(cutoff);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getPowerUserList(String period, String direction, String cursor, LocalDateTime after, Integer limit){
+        return null;
     }
 
     private User getExistingUser(UUID userId) {

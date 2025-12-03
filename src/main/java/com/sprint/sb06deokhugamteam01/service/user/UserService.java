@@ -5,7 +5,9 @@ import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.response.UserDto;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import org.springframework.cglib.core.Local;
 
 public interface UserService {
 
@@ -24,4 +26,6 @@ public interface UserService {
     void hardDeleteUser(UUID userId);
 
     void purgeDeletedUsersBefore(LocalDateTime cutoff);
+
+    List<User> getPowerUserList(String period, String direction, String cursor, LocalDateTime after, Integer limit);
 }
