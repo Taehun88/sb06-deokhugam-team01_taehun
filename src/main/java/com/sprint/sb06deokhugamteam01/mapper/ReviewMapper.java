@@ -17,6 +17,7 @@ public class ReviewMapper {
 
     private final ReviewLikeRepository reviewLikeRepository;
 
+    // 단건 변환 시 사용
     public ReviewDto toDto(Review review, User requestUser){
         User user = review.getUser();
         Book book = review.getBook();
@@ -33,8 +34,34 @@ public class ReviewMapper {
                 .userId(user != null ? user.getId() : null)
                 .userNickname(user != null ? user.getNickname() : null)
 
-                .content(review.getContent()) // TODO N+1 문제 안생기게 조치 필요
-                .rating(review.getRating()) // TODO N+1 문제 안생기게 조치 필요
+                .content(review.getContent())
+                .rating(review.getRating())
+                .likeCount(review.getLikeCount())
+                .commentCount(review.getCommentCount())
+
+                .likedByMe(liked)
+                .createdAt(review.getCreatedAt())
+                .updatedAt(review.getUpdatedAt())
+                .build();
+    }
+
+    // 다건 변환 시 사용
+    public ReviewDto toDto(Review review, boolean liked){
+        User user = review.getUser();
+        Book book = review.getBook();
+
+        return ReviewDto.builder()
+                .id(review.getId())
+
+                .bookId(book != null ? book.getId() : null)
+                .bookTitle(book != null ? book.getTitle() : null)
+                .bookThumbnailUrl(book != null ? book.getThumbnailUrl() : null)
+
+                .userId(user != null ? user.getId() : null)
+                .userNickname(user != null ? user.getNickname() : null)
+
+                .content(review.getContent())
+                .rating(review.getRating())
                 .likeCount(review.getLikeCount())
                 .commentCount(review.getCommentCount())
 

@@ -153,9 +153,15 @@ public class ReviewServiceImpl implements ReviewService {
         Slice<Review> slice
                 = reviewRepository.getReviews(condition, pageable);
 
+        // N+1 문제 해결 위해 ID를 추출해 사용
+        List<UUID> reviewIds = slice.stream()
+                .map(Review::getId)
+                .toList();
+        List<UUID> likedReviewIds = reviewLikeRepository.findLikedReviewIdsByUserIdAndReviewIds(requestUserId, reviewIds);
+
         // DTO로 변환
         List<ReviewDto> content = slice.getContent().stream()
-                .map(review -> reviewMapper.toDto(review, user))
+                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(review.getId())))
                 .toList();
 
         // 커서 페이징 후처리
@@ -229,9 +235,15 @@ public class ReviewServiceImpl implements ReviewService {
 
         Slice<Review> slice = reviewRepository.getPopularReviews(condition, pageable);
 
+        // N+1 문제 해결 위해 ID를 추출해 사용
+        List<UUID> reviewIds = slice.stream()
+                .map(Review::getId)
+                .toList();
+        List<UUID> likedReviewIds = reviewLikeRepository.findLikedReviewIdsByUserIdAndReviewIds(requestUserId, reviewIds);
+
         // DTO로 변환
         List<ReviewDto> content = slice.getContent().stream()
-                .map(review -> reviewMapper.toDto(review, user))
+                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(review.getId())))
                 .toList();
 
         // 커서 페이징 후처리
