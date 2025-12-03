@@ -44,7 +44,7 @@ public class BookServiceImpl implements  BookService {
 
     @Override
     public BookDto getBookByIsbn(String isbn) {
-        return bookSearchService.searchBookByIsbn(isbn);
+        return bookSearchService.searchBookByIsbn(isbn.replace("-", ""));
     }
 
     @Transactional(readOnly = true)
