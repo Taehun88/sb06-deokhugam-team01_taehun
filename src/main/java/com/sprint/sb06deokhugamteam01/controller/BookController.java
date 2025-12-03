@@ -29,23 +29,8 @@ public class BookController {
 
     @GetMapping("")
     public ResponseEntity<CursorPageResponseBookDto> getBooksByCursor(
-            @RequestParam (required = false) String keyword,
-            @RequestParam String orderBy,
-            @RequestParam String direction,
-            @RequestParam (required = false) String cursor,
-            @RequestParam (required = false) String after,
-            @RequestParam (required = false, defaultValue = "12") @Min(1) Integer limit
+            @Valid @ModelAttribute PagingBookRequest request
             ) {
-
-        PagingBookRequest request = PagingBookRequest.builder()
-                .keyword(keyword)
-                .orderBy(PagingBookRequest.OrderBy.valueOf(orderBy.toUpperCase()))
-                .direction(PagingBookRequest.SortDirection.valueOf(direction.toUpperCase()))
-                .cursor(cursor)
-                .after(after != null ? LocalDateTime.parse(after) : null)
-                .limit(limit)
-                .build();
-
         log.info("Received Book get request: keyword={}", request.keyword());
         CursorPageResponseBookDto response = bookService.getBooksByPage(request);
         log.info("Books retrieved successfully: {}", response);
