@@ -121,8 +121,8 @@ class BookServiceImplTest {
         //given
         String isbn = bookDto.isbn();
 
-        when(bookRepository.findByIsbn(isbn))
-                .thenReturn(Optional.of(book));
+        when(bookSearchService.searchBookByIsbn(isbn))
+                .thenReturn(bookDto);
 
         //when
         BookDto result = bookService.getBookByIsbn(isbn);
@@ -130,26 +130,6 @@ class BookServiceImplTest {
         //then
         assertNotNull(result);
         assertEquals(isbn, result.isbn());
-
-    }
-
-    @Test
-    @DisplayName("getBookByIsbn 실패 테스트 - 존재하지 않는 도서")
-    void getBookByIsbn_Fail_NoSuchBook() {
-
-        //given
-        String isbn = "0000000000000";
-
-        when(bookRepository.findByIsbn(isbn))
-                .thenReturn(Optional.empty());
-
-        //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
-            bookService.getBookByIsbn(isbn);
-        });
-
-        //then
-        assertEquals("Book not found", exception.getMessage());
 
     }
 
