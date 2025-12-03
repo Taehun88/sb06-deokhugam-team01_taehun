@@ -44,8 +44,7 @@ public class BookServiceImpl implements  BookService {
 
     @Override
     public BookDto getBookByIsbn(String isbn) {
-        return BookDto.fromEntity(bookRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new NoSuchBookException(detailMap("isbn", isbn))));
+        return bookSearchService.searchBookByIsbn(isbn);
     }
 
     @Transactional(readOnly = true)
