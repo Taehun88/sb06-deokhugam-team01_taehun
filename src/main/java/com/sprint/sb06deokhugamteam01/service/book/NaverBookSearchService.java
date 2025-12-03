@@ -1,10 +1,8 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.BookInfoFetchFailedException;
 import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
