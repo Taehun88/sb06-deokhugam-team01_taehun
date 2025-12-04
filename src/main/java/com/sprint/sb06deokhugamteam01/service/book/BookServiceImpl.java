@@ -1,6 +1,7 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
-import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.BookOrderBy;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
@@ -59,7 +60,7 @@ public class BookServiceImpl implements  BookService {
                         .limit(bookSlice.getContent().size() - (bookSlice.hasNext() ? 1 : 0))
                         .toList())
                 .nextCursor(bookSlice.hasNext() ?
-                        switch (pagingBookRequest.orderBy()) {
+                        switch (BookOrderBy.valueOf(pagingBookRequest.orderBy())) {
                             case TITLE -> bookSlice.getContent().get(bookSlice.getContent().size() -1).getTitle();
                             case PUBLISHED_DATE -> bookSlice.getContent().get(bookSlice.getContent().size() -1).getPublishedDate().toString();
                             case RATING -> String.valueOf(bookSlice.getContent().get(bookSlice.getContent().size() -1).getRating());

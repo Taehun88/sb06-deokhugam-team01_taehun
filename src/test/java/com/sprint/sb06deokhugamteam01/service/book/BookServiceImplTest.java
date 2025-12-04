@@ -1,6 +1,7 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
-import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.BookOrderBy;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
@@ -140,7 +141,7 @@ class BookServiceImplTest {
         //given
         PagingBookRequest pagingBookRequest = PagingBookRequest.builder()
                 .keyword("test")
-                .orderBy(PagingBookRequest.OrderBy.valueOf("title".toUpperCase()))
+                .orderBy("title")
                 .direction(PagingBookRequest.SortDirection.ASC)
                 .cursor("test-cursor")
                 .after(LocalDateTime.now())

@@ -1,7 +1,8 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
-import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.BookOrderBy;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,7 +55,7 @@ class BookQRepositoryTest {
 
         PagingBookRequest request = PagingBookRequest.builder()
                 .keyword("Test Book 1")
-                .orderBy(PagingBookRequest.OrderBy.TITLE)
+                .orderBy("title")
                 .direction(PagingBookRequest.SortDirection.DESC)
                 .cursor(bookList.get(10).getTitle())
                 .after(LocalDateTime.now().minusDays(1))

@@ -1,6 +1,7 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.sb06deokhugamteam01.domain.book.BookOrderBy;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
@@ -68,7 +69,7 @@ class BookControllerTest {
         EasyRandom easyRandom = new EasyRandom();
         PagingBookRequest request = PagingBookRequest.builder()
                 .keyword("Java")
-                .orderBy(PagingBookRequest.OrderBy.PUBLISHED_DATE)
+                .orderBy("publishedDate")
                 .direction(PagingBookRequest.SortDirection.DESC)
                 .cursor("")
                 .after(LocalDateTime.now())
@@ -112,7 +113,7 @@ class BookControllerTest {
         String invalidLimit = "-5"; // 음수 값은 잘못된 파라미터
         PagingBookRequest request = PagingBookRequest.builder()
                 .keyword("Java")
-                .orderBy(PagingBookRequest.OrderBy.PUBLISHED_DATE)
+                .orderBy("publishedDate")
                 .direction(PagingBookRequest.SortDirection.DESC)
                 .cursor("")
                 .after(LocalDateTime.now())
