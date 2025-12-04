@@ -53,14 +53,12 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewDto createReview(ReviewCreateRequest request) {
 
         UUID userId = request.userId();
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", userId)));
 
         Book book = bookRepository.findById(request.bookId())
                 .orElseThrow(() -> new NoSuchBookException(detailMap("bookId", request.bookId())));
 
-        // 누가 어떤 책에 대해 이미 리뷰를 쓴건지 정보를 담음
         if (reviewRepository.existsByUserAndBook(user, book)) {
             Map<String, Object> details = new HashMap<>();
             details.put("userId", user.getId());
@@ -87,20 +85,20 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public ReviewDto getReview(UUID reviewId, UUID requestUserId) {
 
-        User user = userRepository.findById(requestUserId)
+        User requestUser = userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
-        return reviewMapper.toDto(review, user);
+        return reviewMapper.toDto(review, requestUser);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CursorPageResponseReviewDto getReviews(CursorPageReviewRequest request, UUID requestUserId) {
 
-        User user = userRepository.findById(requestUserId)
+        userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         // 기본값 처리
@@ -166,7 +164,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // DTO로 변환
         List<ReviewDto> content = slice.getContent().stream()
-                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(review.getId())))
+                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(requestUserId)))
                 .toList();
 
         // 커서 페이징 후처리
@@ -196,7 +194,7 @@ public class ReviewServiceImpl implements ReviewService {
                                                                 UUID requestUserId
     ) {
 
-        User user = userRepository.findById(requestUserId)
+        userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         // 커서 유효성 검증
@@ -248,7 +246,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // DTO로 변환
         List<ReviewDto> content = slice.getContent().stream()
-                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(review.getId())))
+                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(requestUserId)))
                 .toList();
 
         // 커서 페이징 후처리
@@ -304,11 +302,16 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(UUID reviewId, UUID requestUserId) {
 
-        userRepository.findById(requestUserId)
+        User user = userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
+
+        // 작성자 == 요청자인지 검증
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new InvalidUserException(detailMap("userId", requestUserId));
+        }
 
         review.softDelete();
         reviewRepository.save(review);
@@ -356,7 +359,6 @@ public class ReviewServiceImpl implements ReviewService {
             review.increaseLikeCount();
             liked = true;
         }
-
 
         reviewRepository.save(review);
 
