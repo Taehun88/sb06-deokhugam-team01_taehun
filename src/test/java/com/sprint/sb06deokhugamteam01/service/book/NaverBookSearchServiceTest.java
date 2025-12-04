@@ -1,17 +1,13 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
-import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +44,7 @@ class NaverBookSearchServiceTest {
 
     @Test
     @DisplayName("도서 검색 결과 없음")
-    void testSearchBookByIsbn_Fail_NoSuchBookException() {
+    void testSearchBookByIsbn_Fail_BookNotFoundException() {
 
         //given
         String invalidIsbn = "0000000000000"; // 존재하지 않는 ISBN
@@ -56,7 +52,7 @@ class NaverBookSearchServiceTest {
         //when
 
         //then
-        assertThrows(NoSuchBookException.class, () -> {
+        assertThrows(BookNotFoundException.class, () -> {
             naverBookSearchService.searchBookByIsbn(invalidIsbn);
         });
 

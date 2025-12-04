@@ -9,7 +9,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.AlreadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
@@ -39,7 +39,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public BookDto getBookById(UUID id) {
         return BookDto.fromEntity(bookRepository.findById(id)
-                .orElseThrow(() -> new NoSuchBookException(detailMap("id", id))));
+                .orElseThrow(() -> new BookNotFoundException(detailMap("id", id))));
     }
 
     @Override
@@ -110,10 +110,10 @@ public class BookServiceImpl implements  BookService {
     public BookDto updateBook(UUID id, BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file) {
 
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NoSuchBookException(detailMap("id", id)));
+                .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         if (!book.isActive()) {
-            throw new NoSuchBookException(detailMap("id", id));
+            throw new BookNotFoundException(detailMap("id", id));
         }
 
         book.updateBook(
@@ -133,10 +133,10 @@ public class BookServiceImpl implements  BookService {
     public void deleteBookById(UUID id) {
 
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NoSuchBookException(detailMap("id", id)));
+                .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         if (!book.isActive()) {
-            throw new NoSuchBookException(detailMap("id", id));
+            throw new BookNotFoundException(detailMap("id", id));
         }
 
         book.softDelete();
@@ -148,7 +148,7 @@ public class BookServiceImpl implements  BookService {
     public void hardDeleteBookById(UUID id) {
 
         if (!bookRepository.existsById(id)) {
-            throw new NoSuchBookException(detailMap("id", id));
+            throw new BookNotFoundException(detailMap("id", id));
         }
 
         bookRepository.deleteById(id);

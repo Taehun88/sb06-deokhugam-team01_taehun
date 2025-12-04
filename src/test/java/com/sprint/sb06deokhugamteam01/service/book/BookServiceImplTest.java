@@ -7,7 +7,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.AlreadyExistsIsbnException;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
@@ -105,7 +105,7 @@ class BookServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //when
-        NoSuchBookException e = assertThrows(NoSuchBookException.class, () -> {
+        BookNotFoundException e = assertThrows(BookNotFoundException.class, () -> {
             bookService.getBookById(bookId);
         });
 
@@ -321,7 +321,7 @@ class BookServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> {
             bookService.updateBook(bookDto.id(), updateRequest, null);
         });
 
@@ -356,7 +356,7 @@ class BookServiceImplTest {
         UUID bookId = bookDto.id();
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> {
             bookService.deleteBookById(bookId);
         });
 
@@ -395,7 +395,7 @@ class BookServiceImplTest {
         UUID bookId = bookDto.id();
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> {
             bookService.hardDeleteBookById(bookId);
         });
 

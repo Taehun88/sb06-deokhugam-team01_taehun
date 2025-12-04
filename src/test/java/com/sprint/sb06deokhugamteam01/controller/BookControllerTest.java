@@ -6,7 +6,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.BookInfo;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.service.book.BookService;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.BeforeEach;
@@ -267,7 +267,7 @@ class BookControllerTest {
 
         //when
         when(bookService.getBookById(bookDto.id()))
-                .thenThrow(new NoSuchBookException(Map.of()));
+                .thenThrow(new BookNotFoundException(Map.of()));
 
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/books/{bookId}", bookDto.id()))
@@ -321,7 +321,7 @@ class BookControllerTest {
 
         //when
         when(bookService.getBookByIsbn(bookDto.isbn()))
-                .thenThrow(new NoSuchBookException(Map.of()));
+                .thenThrow(new BookNotFoundException(Map.of()));
 
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/books/info")

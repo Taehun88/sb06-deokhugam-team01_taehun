@@ -4,7 +4,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.naver.BookData;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.naver.NaverBookSearchResponse;
 import com.sprint.sb06deokhugamteam01.exception.book.BookInfoFetchFailedException;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +46,7 @@ public class NaverBookSearchService implements BookSearchService{
                 .body(NaverBookSearchResponse.class);
 
         if (result.items().length == 0) {
-            throw new NoSuchBookException(detailMap("isbn", isbn));
+            throw new BookNotFoundException(detailMap("isbn", isbn));
         }
 
         BookData bookData = result.items()[0];
