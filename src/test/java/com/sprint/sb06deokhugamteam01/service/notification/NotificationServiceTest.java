@@ -8,11 +8,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.sprint.sb06deokhugamteam01.domain.Notification;
+import com.sprint.sb06deokhugamteam01.domain.User;
+import com.sprint.sb06deokhugamteam01.dto.notification.CursorPageResponseNotificationDto;
+import com.sprint.sb06deokhugamteam01.exception.common.UnauthorizedAccessException;
 import com.sprint.sb06deokhugamteam01.exception.notification.NotificationNotFoundException;
-import com.sprint.sb06deokhugamteam01.repository.NotificationRepository;
+import com.sprint.sb06deokhugamteam01.repository.notification.NotificationRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +25,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -30,6 +37,14 @@ class NotificationServiceTest {
     @InjectMocks
     private NotificationServiceImpl target;
 
+    private User user;
+    @BeforeEach
+    void setUp() {
+        user = User.builder().build();
+        UUID userId = UUID.randomUUID();
+        ReflectionTestUtils.setField(user, "id", userId);
+    }
+
     @Test
     @DisplayName("updateNotification: 알림을 찾아 확인 상태로 변경한다.")
     void updateNotification_shouldConfirmNotification() {
@@ -38,11 +53,12 @@ class NotificationServiceTest {
             .id(notificationId)
             .content("old content")
             .confirmed(false)
+            .user(user)
             .build();
 
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(existing));
 
-        Notification result = target.updateNotification(notificationId, "new content", true);
+        Notification result = target.updateNotification(notificationId, user.getId());
 
         verify(notificationRepository).findById(notificationId);
         assertThat(result.isConfirmed()).isTrue();
@@ -54,8 +70,25 @@ class NotificationServiceTest {
         UUID notificationId = UUID.randomUUID();
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> target.updateNotification(notificationId, "content", true))
+        assertThatThrownBy(() -> target.updateNotification(notificationId, user.getId()))
             .isInstanceOf(NotificationNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("updateNotification: 다른 사용자의 알림이면 UnauthorizedAccessException을 던진다.")
+    void updateNotification_whenUnauthorized_shouldThrow() {
+        UUID notificationId = UUID.randomUUID();
+        Notification existing = Notification.builder()
+            .id(notificationId)
+            .content("old content")
+            .confirmed(false)
+            .user(User.builder().build()) // 다른 사용자
+            .build();
+
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(existing));
+
+        assertThatThrownBy(() -> target.updateNotification(notificationId, user.getId()))
+            .isInstanceOf(UnauthorizedAccessException.class);
     }
 
     @Test
@@ -90,20 +123,41 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("getNotifications: 특정 사용자의 미확인 알림만 반환한다.")
-    void getNotifications_shouldReturnUnconfirmedForUser() {
+    @DisplayName("getNotifications: 사용자 알림을 DTO로 매핑하고 next 커서를 포함해 반환한다.")
+    void getNotifications_shouldReturnCursorPageResponse() {
         UUID userId = UUID.randomUUID();
-        List<Notification> notifications = List.of(
-            Notification.builder().id(UUID.randomUUID()).user(null).confirmed(false).build(),
-            Notification.builder().id(UUID.randomUUID()).user(null).confirmed(false).build()
-        );
+        User user = User.builder().email("a@a.com").password("p").nickname("n").build();
+        ReflectionTestUtils.setField(user, "id", userId);
 
-        when(notificationRepository.findAllByUserIdAndConfirmedFalse(userId)).thenReturn(notifications);
+        Notification first = Notification.builder()
+            .id(UUID.randomUUID())
+            .user(user)
+            .confirmed(false)
+            .content("c1")
+            .build();
+        ReflectionTestUtils.setField(first, "createdAt", LocalDateTime.now());
 
-        List<Notification> result = target.getNotifications(userId);
+        Notification second = Notification.builder()
+            .id(UUID.randomUUID())
+            .user(user)
+            .confirmed(true)
+            .content("c2")
+            .build();
+        ReflectionTestUtils.setField(second, "createdAt", LocalDateTime.now().minusSeconds(1));
 
-        verify(notificationRepository).findAllByUserIdAndConfirmedFalse(userId);
-        assertThat(result).isEqualTo(notifications);
+        SliceImpl<Notification> slice = new SliceImpl<>(List.of(first, second));
+
+        when(notificationRepository.getNotifications(userId, null, null, false, null, null))
+            .thenReturn(slice);
+
+        CursorPageResponseNotificationDto result =
+            target.getNotifications(userId, "DESC", null, null, null, null);
+
+        verify(notificationRepository).getNotifications(userId, null, null, false, null, null);
+        assertThat(result.content()).hasSize(2);
+        assertThat(result.content().get(0).id()).isEqualTo(first.getId());
+        assertThat(result.nextCursor()).isNull(); // hasNext=false
+        assertThat(result.hasNext()).isFalse();
     }
 
     @Test

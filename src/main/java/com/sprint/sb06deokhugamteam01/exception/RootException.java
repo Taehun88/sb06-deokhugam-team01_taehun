@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+
+@Getter
 public class RootException extends RuntimeException {
 
-    private LocalDateTime timestamp;
-    private ErrorCode errorCode;
+    private final LocalDateTime timestamp;
+    private final ErrorCode errorCode;
     private final Map<String, Object> details;
 
     public RootException(ErrorCode errorCode, Map<String, Object> details) {
