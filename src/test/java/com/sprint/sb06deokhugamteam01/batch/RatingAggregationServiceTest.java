@@ -2,14 +2,13 @@ package com.sprint.sb06deokhugamteam01.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchReviewRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchUserRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
-import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
-import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.ReviewLogRepository;
@@ -71,18 +70,26 @@ class RatingAggregationServiceTest {
 
     @BeforeEach
     void setUp() {
-        UserRegisterRequest userRegisterRequest = new UserRegisterRequest(
-                "author@example.com", "author", "pw");
-        User userAuthor = User.toEntity(userRegisterRequest);
-        author = userRepository.save(userAuthor);
+        author = userRepository.save(User.builder()
+                .email("author@example.com")
+                .nickname("author")
+                .password("pw")
+                .isActive(true)
+                .build());
 
-        UserRegisterRequest userRegisterRequest1 = new UserRegisterRequest(
-            "liker@example.com", "liker", "pw");
-        UserRegisterRequest userRegisterRequest2 = new UserRegisterRequest(
-            "commenter@example.com", "commenter", "pw");
-        liker = userRepository.save(User.toEntity(userRegisterRequest1));
+        liker = userRepository.save(User.builder()
+                .email("liker@example.com")
+                .nickname("liker")
+                .password("pw")
+                .isActive(true)
+                .build());
 
-        commenter = userRepository.save(User.toEntity(userRegisterRequest2));
+        commenter = userRepository.save(User.builder()
+                .email("commenter@example.com")
+                .nickname("commenter")
+                .password("pw")
+                .isActive(true)
+                .build());
 
         book = bookRepository.save(Book.builder()
                 .title("title")

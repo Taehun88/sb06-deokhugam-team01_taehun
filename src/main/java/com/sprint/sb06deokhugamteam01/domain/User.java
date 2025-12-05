@@ -22,7 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")

@@ -1,11 +1,11 @@
 package com.sprint.sb06deokhugamteam01.batch;
 
+import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchReviewRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchUserRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
-import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
