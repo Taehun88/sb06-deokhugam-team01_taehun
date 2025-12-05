@@ -9,9 +9,8 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.AlreadyExistsIsbnException;
-import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.S3UploadFailedException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
@@ -24,10 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.*;
 
 @Service
@@ -49,7 +44,7 @@ public class BookServiceImpl implements  BookService {
 
         String presignedUrl = s3StorageService.getPresignedUrl(book.getThumbnailUrl());
 
-        return BookDto.fromEntity(book);
+        return BookDto.fromEntityWithImageUrl(book, presignedUrl);
     }
 
     @Override
@@ -60,7 +55,7 @@ public class BookServiceImpl implements  BookService {
 
         String presignedUrl = s3StorageService.getPresignedUrl(book.getThumbnailUrl());
 
-        return BookDto.fromEntity(book);
+        return BookDto.fromEntityWithImageUrl(book, presignedUrl);
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +66,10 @@ public class BookServiceImpl implements  BookService {
 
         return CursorPageResponseBookDto.builder()
                 .content(bookSlice.getContent().stream()
-                        .map(BookDto::fromEntity)
+                        .map(book -> {
+                            String presignedUrl = s3StorageService.getPresignedUrl(book.getThumbnailUrl());
+                            return BookDto.fromEntityWithImageUrl(book, presignedUrl);
+                        })
                         .limit(bookSlice.getContent().size() - (bookSlice.hasNext() ? 1 : 0))
                         .toList())
                 .nextCursor(bookSlice.hasNext() ?

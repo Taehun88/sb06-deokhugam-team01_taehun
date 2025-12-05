@@ -158,7 +158,7 @@ class BookServiceImplTest {
 
         //then
         assertNotNull(result);
-        assertNotEquals(pagingBookRequest.limit(), result.getContent().size());
+        assertNotEquals(pagingBookRequest.limit(), result.content().size());
 
     }
 
