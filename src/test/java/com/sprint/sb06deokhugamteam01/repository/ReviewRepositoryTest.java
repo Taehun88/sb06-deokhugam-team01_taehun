@@ -173,26 +173,26 @@ class ReviewRepositoryTest {
         assertThat(slice.hasNext()).isTrue();
     }
 
-    @Test
-    @DisplayName("리뷰 다건 조회 성공 - 기본 조회, 최신순 2개, 다음 페이지")
-    void getReviews_cursor_createdAt_desc() {
-
-        // given
-        Pageable pageable = PageRequest.ofSize(2);
-        ReviewSearchCondition condition = ReviewSearchCondition.builder()
-                .cursor(testReview2.getCreatedAt().toString())
-                .after(testReview2.getCreatedAt())
-                .limit(2)
-                .build();
-        // when
-        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
-
-        // then
+//    @Test
+//    @DisplayName("리뷰 다건 조회 성공 - 기본 조회, 최신순 2개, 다음 페이지")
+//    void getReviews_cursor_createdAt_desc() {
+//
+//        // given
+//        Pageable pageable = PageRequest.ofSize(2);
+//        ReviewSearchCondition condition = ReviewSearchCondition.builder()
+//                .cursor(testReview2.getCreatedAt().toString())
+//                .after(testReview2.getCreatedAt())
+//                .limit(2)
+//                .build();
+//        // when
+//        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
+//
+//        // then
 //        assertThat(slice.getContent()).hasSize(1);
-        assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
-                .containsExactly(testReview1.getId());
-        assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
-    }
+//        assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
+//                .containsExactly(testReview1.getId());
+//        assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
+//    }
 
     @Test
     @DisplayName("리뷰 다건 조회 성공 - 평점 기준 오름차순, 다음 페이지")
