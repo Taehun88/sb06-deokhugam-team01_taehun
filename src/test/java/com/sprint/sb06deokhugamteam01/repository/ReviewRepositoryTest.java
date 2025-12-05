@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
                 ReviewRepository.class, QueryDslConfig.class
         }
 ))
-@Import(ReviewRepositoryTest.TestAuditConfiguration.class)
 @ActiveProfiles("test")
 class ReviewRepositoryTest {
 
@@ -189,7 +188,7 @@ class ReviewRepositoryTest {
         Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
-        assertThat(slice.getContent()).hasSize(1);
+//        assertThat(slice.getContent()).hasSize(1);
         assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
                 .containsExactly(testReview1.getId());
         assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
@@ -213,7 +212,7 @@ class ReviewRepositoryTest {
         Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
-        assertThat(slice.getContent()).hasSize(1);
+        // assertThat(slice.getContent()).hasSize(1);
         assertThat(slice.getContent()).extracting("id")
                 .containsExactly(testReview1.getId());
         assertThat(slice.hasNext()).isFalse();
@@ -301,14 +300,5 @@ class ReviewRepositoryTest {
         assertThat(slice.getContent()).extracting("id")
                 .containsExactly(testReview2.getId());
         assertThat(slice.hasNext()).isTrue();
-    }
-
-    // CI 단계의 createdAt 정렬 문제 해결 위한 정적클래스
-    @TestConfiguration
-    static class TestAuditConfiguration {
-        @Bean
-        public DateTimeProvider dateTimeProvider() {
-            return () -> Optional.of(LocalDateTime.of(2025, 1, 1, 0, 0, 0));
-        }
     }
 }
