@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 public class BasicS3StorageService implements S3StorageService {
 
-    @Value("${discodeit.storage.s3.presigned-url-expiration}")
+    @Value("${spring.cloud.aws.s3.presigned-url-expiration}")
     private String presignedUrlExpiration;
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
