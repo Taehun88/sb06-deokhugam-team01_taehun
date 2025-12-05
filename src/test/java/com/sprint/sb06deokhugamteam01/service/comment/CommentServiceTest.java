@@ -254,13 +254,13 @@ public class CommentServiceTest {
         Comment comment = Comment.builder().user(user).build();
         ReflectionTestUtils.setField(comment, "id", commentId);
 
-        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+        given(commentRepository.findByIdAndIsActiveFalse(commentId)).willReturn(Optional.of(comment));
 
         // when
         commentService.hardDeleteComment(commentId, userId);
 
         // then
-        verify(commentRepository).delete(comment);
+        verify(commentRepository).hardDeleteById(commentId);
     }
     @Test
     @DisplayName("존재하지 않는 댓글로 물리 삭제 실패")
@@ -269,7 +269,7 @@ public class CommentServiceTest {
         UUID userId = UUID.randomUUID();
         UUID invalidCommentId = UUID.randomUUID();
 
-        given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
+        given(commentRepository.findByIdAndIsActiveFalse(invalidCommentId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> commentService.hardDeleteComment(invalidCommentId, userId))
@@ -289,7 +289,7 @@ public class CommentServiceTest {
         Comment comment = Comment.builder().user(owner).build();
         ReflectionTestUtils.setField(comment, "id", commentId);
 
-        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+        given(commentRepository.findByIdAndIsActiveFalse(commentId)).willReturn(Optional.of(comment));
 
         // when & then
         assertThatThrownBy(() -> commentService.hardDeleteComment(commentId, anotherUserId))
