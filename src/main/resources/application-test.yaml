@@ -10,7 +10,7 @@ spring:
         static: ${ap-northeast-2:ap-northeast-2}
       s3:
         bucket: ${AWS_S3_BUCKET}
-        presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+        presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:PT10H}
   config:
     import: optional:file:${user.dir}/.env[.properties]
   datasource:

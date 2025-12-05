@@ -65,7 +65,7 @@ class BasicS3StorageServiceTest {
         });
 
         //then
-        assertEquals("S3 Object not found", exception.getMessage());
+        assertEquals("S3 object not found", exception.getMessage());
 
     }
 
@@ -102,7 +102,7 @@ class BasicS3StorageServiceTest {
         });
 
         //then
-        assertEquals("S3 Object not found", exception.getMessage());
+        assertEquals("S3 object not found", exception.getMessage());
         
     }
 
