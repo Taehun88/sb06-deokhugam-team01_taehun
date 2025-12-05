@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
+import com.sprint.sb06deokhugamteam01.config.JpaAuditingConfig;
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
 import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.Comment;
@@ -18,7 +19,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,7 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(
         type = FilterType.ASSIGNABLE_TYPE,
-        classes = { QueryDslConfig.class }
+        classes = { QueryDslConfig.class,
+                    JpaAuditingConfig.class}
 ))
 @ActiveProfiles("test")
 public class CommentRepositoryTest {
