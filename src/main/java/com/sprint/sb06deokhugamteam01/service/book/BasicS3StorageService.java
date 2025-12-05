@@ -52,13 +52,7 @@ public class BasicS3StorageService implements S3StorageService {
     @Override
     public void deleteObject(String id) {
 
-        try {
-            s3Client.headObject(builder -> builder
-                    .bucket(bucket)
-                    .key(id));
-        } catch (NoSuchKeyException | S3Exception e) {
-            throw new S3ObjectNotFound(detailMap("id", id));
-        }
+        checkIfObjectExists(id);
 
         try {
 
@@ -81,13 +75,7 @@ public class BasicS3StorageService implements S3StorageService {
     @Override
     public String getPresignedUrl(String id, String contentType) {
 
-        try {
-            s3Client.headObject(builder -> builder
-                    .bucket(bucket)
-                    .key(id));
-        } catch (NoSuchKeyException | S3Exception e) {
-            throw new S3ObjectNotFound(detailMap("id", id));
-        }
+        checkIfObjectExists(id);
 
         GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(Duration.parse(presignedUrlExpiration))
@@ -105,6 +93,14 @@ public class BasicS3StorageService implements S3StorageService {
         Map<String, Object> details = new HashMap<>();
         details.put(key, value);
         return details;
+    }
+
+    private void checkIfObjectExists(String id) {
+        try {
+            s3Client.headObject(b -> b.bucket(bucket).key(id));
+        } catch (NoSuchKeyException | S3Exception e) {
+            throw new S3ObjectNotFound(detailMap("id", id));
+        }
     }
 
 }
