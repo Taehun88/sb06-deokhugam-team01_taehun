@@ -8,6 +8,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.AlreadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
+import com.sprint.sb06deokhugamteam01.exception.book.S3UploadFailedException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
@@ -24,6 +25,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +33,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.nCopies;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +54,9 @@ class BookServiceImplTest {
 
     @Mock
     private OcrService ocrService;
+
+    @Mock
+    private S3StorageService s3StorageService;
 
     @InjectMocks
     private BookServiceImpl bookService;
@@ -84,6 +90,9 @@ class BookServiceImplTest {
         //given
         when(bookRepository.findById(bookDto.id()))
                 .thenReturn(Optional.of(book));
+
+        when(s3StorageService.getPresignedUrl(bookDto.thumbnailUrl()))
+                .thenReturn(bookDto.thumbnailUrl());
 
         //when
         BookDto result = bookService.getBookById(bookDto.id());
@@ -153,6 +162,9 @@ class BookServiceImplTest {
         when(bookRepository.findBooksByKeyword(pagingBookRequest))
                 .thenReturn(new SliceImpl<>(nCopies(11, book)));
 
+        when(s3StorageService.getPresignedUrl(any(String.class)))
+                .thenReturn(bookDto.thumbnailUrl());
+
         //when
         CursorPageResponseBookDto result = bookService.getBooksByPage(pagingBookRequest);
 
@@ -176,6 +188,8 @@ class BookServiceImplTest {
                 bookDto.isbn()
         );
 
+        MockMultipartFile mockThumbnail = new MockMultipartFile("thumbnail.png", "thumbnail.png", "image/png", new byte[]{1,2,3});
+
         when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
                 .thenReturn(false);
 
@@ -183,7 +197,7 @@ class BookServiceImplTest {
                 .thenReturn(book);
 
         //when
-        BookDto result = bookService.createBook(bookCreateRequest, null);
+        BookDto result = bookService.createBook(bookCreateRequest, mockThumbnail);
 
         //then
         assertNotNull(result);
@@ -227,7 +241,7 @@ class BookServiceImplTest {
     }
 
     //외부 api 테스트이므로 현재는 실패
-    /*@Test
+    @Test
     @DisplayName("createBook 실패 테스트 - S3 업로드 오류")
     void createBook_Fail_S3UploadError() {
 
@@ -241,18 +255,26 @@ class BookServiceImplTest {
                 "sdfadsfadsf"
         );
 
+        MockMultipartFile mockThumbnail = new MockMultipartFile("thumbnail.png", "thumbnail.png", "image/png", new byte[]{1,2,3});
+
+        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
+                .thenReturn(false);
+
+        when(s3StorageService.putObject(anyString(), any(byte[].class)))
+                .thenThrow(new S3UploadFailedException(new HashMap<>()));
+
         //when
         S3UploadFailedException exception = assertThrows(S3UploadFailedException.class, () -> {
-            bookService.createBook(bookCreateRequest, null);
+            bookService.createBook(bookCreateRequest, mockThumbnail);
         });
 
         //then
-        assertEquals("S3 업로드에 실패하였습니다.", exception.getMessage());
+        assertEquals("S3 upload failed", exception.getMessage());
 
-    }*/
+    }
 
     @Test
-    @DisplayName("createBookByIsbnImage 성공 테스트")
+    @DisplayName("getIsbnByImage 성공 테스트")
     void getIsbnByImage_Success() {
 
         //given
@@ -283,6 +305,7 @@ class BookServiceImplTest {
                 .publisher("수정된 출판사")
                 .publishedDate(LocalDate.now())
                 .build();
+        MockMultipartFile mockThumbnail = new MockMultipartFile("thumbnail.png", "thumbnail.png", "image/png", new byte[]{1,2,3});
 
         Book updatedBook = BookUpdateRequest.fromDto(updateRequest);
 
@@ -290,7 +313,7 @@ class BookServiceImplTest {
                 .thenReturn(Optional.of(book));
 
         //when
-        BookDto result = bookService.updateBook(bookId, updateRequest, null);
+        BookDto result = bookService.updateBook(bookId, updateRequest, mockThumbnail);
 
         //then
         assertNotNull(result);
@@ -372,8 +395,8 @@ class BookServiceImplTest {
         //given
         UUID bookId = bookDto.id();
 
-        when(bookRepository.existsById(bookId))
-                .thenReturn(true);
+        when(bookRepository.findById(bookId))
+                .thenReturn(Optional.ofNullable(book));
 
         when(reviewRepository.findByBook_Id(bookId))
                 .thenReturn(emptyList());
