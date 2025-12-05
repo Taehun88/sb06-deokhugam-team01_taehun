@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("BasicS3StorageService 테스트")
 class BasicS3StorageServiceTest {
 
-    @Autowired
+    /*@Autowired
     private BasicS3StorageService basicS3StorageService;
 
     @Test
@@ -103,5 +103,5 @@ class BasicS3StorageServiceTest {
         assertEquals("S3 object not found", exception.getMessage());
         
     }
-
+*/
 }

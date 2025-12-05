@@ -39,7 +39,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public BookDto getBookById(UUID id) {
 
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndIsActive(id, true)
                 .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         String presignedUrl = s3StorageService.getPresignedUrl(book.getThumbnailUrl());
@@ -86,7 +86,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public BookDto createBook(BookCreateRequest bookCreateRequest, @Nullable MultipartFile file) {
 
-        if (bookRepository.existsByIsbn(bookCreateRequest.isbn()) && bookRepository.findByIsbn(bookCreateRequest.isbn()).get().isActive()) {
+        if (bookRepository.existsByIsbnAndIsActive(bookCreateRequest.isbn(), true)) {
             throw new AlreadyExistsIsbnException(detailMap("isbn", bookCreateRequest.isbn()));
         }
 
@@ -123,7 +123,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public BookDto updateBook(UUID id, BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file) {
 
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndIsActive(id, true)
                 .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         if (!book.isActive()) {
@@ -160,7 +160,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public void deleteBookById(UUID id) {
 
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndIsActive(id, true)
                 .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         if (!book.isActive()) {
@@ -175,7 +175,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public void hardDeleteBookById(UUID id) {
 
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndIsActive(id, true)
                 .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         s3StorageService.deleteObject(book.getThumbnailUrl());
