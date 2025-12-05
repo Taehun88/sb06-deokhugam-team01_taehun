@@ -22,6 +22,18 @@ jobs:
           java-version: "17"
           cache: gradle
 
+      - name: check pwd
+        run: pwd
+
+      - name: make env files
+        run: |
+          echo "NAVER_API_CLIENT_ID = ${{secrets.NAVER_API_CLIENT_ID}}" >> .env
+          echo "NAVER_API_CLIENT_SECRET = ${{secrets.NAVER_API_CLIENT_SECRET}}" >> .env
+          echo "OCR_SPACE_API_KEY = ${{secrets.OCR_SPACE_API_KEY}}" >> .env
+
+      - name: check env files
+        run: cat ./.env
+
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 

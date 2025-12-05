@@ -1,6 +1,6 @@
 package com.sprint.sb06deokhugamteam01.service.review;
 
-import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.dto.review.PopularReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;

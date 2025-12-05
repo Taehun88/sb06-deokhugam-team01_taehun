@@ -1,5 +1,15 @@
 package com.sprint.sb06deokhugamteam01.domain;
 
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.domain.User;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

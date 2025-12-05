@@ -1,10 +1,10 @@
 package com.sprint.sb06deokhugamteam01.service.review;
 
-import com.sprint.sb06deokhugamteam01.domain.Book;
-import com.sprint.sb06deokhugamteam01.domain.ReviewLike;
-import com.sprint.sb06deokhugamteam01.dto.review.PopularReviewSearchCondition;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
+import com.sprint.sb06deokhugamteam01.dto.review.*;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.dto.review.ReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPagePopularReviewRequest;
 import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPageReviewRequest;
@@ -14,7 +14,6 @@ import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponsePopu
 import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponseReviewDto;
 import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewDto;
 import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewLikeDto;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
 import com.sprint.sb06deokhugamteam01.exception.review.InvalidReviewCursorException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewAlreadyExistsException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
@@ -57,7 +56,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", userId)));
 
         Book book = bookRepository.findById(request.bookId())
-                .orElseThrow(() -> new NoSuchBookException(detailMap("bookId", request.bookId())));
+                .orElseThrow(() -> new BookNotFoundException(detailMap("bookId", request.bookId())));
 
         if (reviewRepository.existsByUserAndBook(user, book)) {
             Map<String, Object> details = new HashMap<>();

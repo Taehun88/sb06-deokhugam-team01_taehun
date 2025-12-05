@@ -1,7 +1,7 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
-import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.dto.review.PopularReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.domain.Review;
@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(
         type = FilterType.ASSIGNABLE_TYPE,
@@ -174,50 +173,50 @@ class ReviewRepositoryTest {
         assertThat(slice.hasNext()).isTrue();
     }
 
-//    @Test
-//    @DisplayName("리뷰 다건 조회 성공 - 기본 조회, 최신순 2개, 다음 페이지")
-//    void getReviews_cursor_createdAt_desc() {
-//
-//        // given
-//        Pageable pageable = PageRequest.ofSize(2);
-//        ReviewSearchCondition condition = ReviewSearchCondition.builder()
-//                .cursor(testReview2.getCreatedAt().toString())
-//                .after(testReview2.getCreatedAt())
-//                .limit(2)
-//                .build();
-//        // when
-//        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
-//
-//        // then
-//        assertThat(slice.getContent()).hasSize(1);
-//        assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
-//                .containsExactly(testReview1.getId());
-//        assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
-//    }
+    /*@Test
+    @DisplayName("리뷰 다건 조회 성공 - 기본 조회, 최신순 2개, 다음 페이지")
+    void getReviews_cursor_createdAt_desc() {
 
-//    @Test
-//    @DisplayName("리뷰 다건 조회 성공 - 평점 기준 오름차순, 다음 페이지")
-//    void getReviews_cursor_rating_desc() {
-//
-//        // given
-//        Pageable pageable = PageRequest.ofSize(2);
-//        ReviewSearchCondition condition = ReviewSearchCondition.builder()
-//                .useRating(true)
-//                .ascending(true)
-//                .cursor("4")
-//                .after(testReview2.getCreatedAt())
-//                .limit(2)
-//                .build();
-//
-//        // when
-//        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
-//
-//        // then
-//        // assertThat(slice.getContent()).hasSize(1);
-//        assertThat(slice.getContent()).extracting("id")
-//                .containsExactly(testReview1.getId());
-//        assertThat(slice.hasNext()).isFalse();
-//    }
+        // given
+        Pageable pageable = PageRequest.ofSize(2);
+        ReviewSearchCondition condition = ReviewSearchCondition.builder()
+                .cursor(testReview2.getCreatedAt().toString())
+                .after(testReview2.getCreatedAt())
+                .limit(2)
+                .build();
+        // when
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
+
+        // then
+        assertThat(slice.getContent()).hasSize(1);
+        assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
+                .containsExactly(testReview1.getId());
+        assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
+    }
+
+    @Test
+    @DisplayName("리뷰 다건 조회 성공 - 평점 기준 오름차순, 다음 페이지")
+    void getReviews_cursor_rating_desc() {
+
+        // given
+        Pageable pageable = PageRequest.ofSize(2);
+        ReviewSearchCondition condition = ReviewSearchCondition.builder()
+                .useRating(true)
+                .ascending(true)
+                .cursor("4")
+                .after(testReview2.getCreatedAt())
+                .limit(2)
+                .build();
+
+        // when
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
+
+        // then
+        assertThat(slice.getContent()).hasSize(1);
+        assertThat(slice.getContent()).extracting("id")
+                .containsExactly(testReview1.getId());
+        assertThat(slice.hasNext()).isFalse();
+    }*/
 
     @Test
     @DisplayName("리뷰 다건 조회 성공 - 사용자 ID 및 도서 ID로 조회")
