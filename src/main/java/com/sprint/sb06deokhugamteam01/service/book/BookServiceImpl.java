@@ -43,13 +43,24 @@ public class BookServiceImpl implements  BookService {
 
     @Override
     public BookDto getBookById(UUID id) {
-        return BookDto.fromEntity(bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(detailMap("id", id))));
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
+
+        String presignedUrl = s3StorageService.getPresignedUrl(book.getThumbnailUrl());
+
+        return BookDto.fromEntity(book);
     }
 
     @Override
     public BookDto getBookByIsbn(String isbn) {
-        return bookSearchService.searchBookByIsbn(isbn.replace("-", ""));
+
+        Book book = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new BookNotFoundException(detailMap("isbn", isbn)));
+
+        String presignedUrl = s3StorageService.getPresignedUrl(book.getThumbnailUrl());
+
+        return BookDto.fromEntity(book);
     }
 
     @Transactional(readOnly = true)
