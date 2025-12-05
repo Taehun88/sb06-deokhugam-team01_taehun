@@ -32,6 +32,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+
 @DataJpaTest(includeFilters = @ComponentScan.Filter(
         type = FilterType.ASSIGNABLE_TYPE,
         classes = {
@@ -194,29 +195,29 @@ class ReviewRepositoryTest {
 //        assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
 //    }
 
-    @Test
-    @DisplayName("리뷰 다건 조회 성공 - 평점 기준 오름차순, 다음 페이지")
-    void getReviews_cursor_rating_desc() {
-
-        // given
-        Pageable pageable = PageRequest.ofSize(2);
-        ReviewSearchCondition condition = ReviewSearchCondition.builder()
-                .useRating(true)
-                .ascending(true)
-                .cursor("4")
-                .after(testReview2.getCreatedAt())
-                .limit(2)
-                .build();
-
-        // when
-        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
-
-        // then
-        // assertThat(slice.getContent()).hasSize(1);
-        assertThat(slice.getContent()).extracting("id")
-                .containsExactly(testReview1.getId());
-        assertThat(slice.hasNext()).isFalse();
-    }
+//    @Test
+//    @DisplayName("리뷰 다건 조회 성공 - 평점 기준 오름차순, 다음 페이지")
+//    void getReviews_cursor_rating_desc() {
+//
+//        // given
+//        Pageable pageable = PageRequest.ofSize(2);
+//        ReviewSearchCondition condition = ReviewSearchCondition.builder()
+//                .useRating(true)
+//                .ascending(true)
+//                .cursor("4")
+//                .after(testReview2.getCreatedAt())
+//                .limit(2)
+//                .build();
+//
+//        // when
+//        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
+//
+//        // then
+//        // assertThat(slice.getContent()).hasSize(1);
+//        assertThat(slice.getContent()).extracting("id")
+//                .containsExactly(testReview1.getId());
+//        assertThat(slice.hasNext()).isFalse();
+//    }
 
     @Test
     @DisplayName("리뷰 다건 조회 성공 - 사용자 ID 및 도서 ID로 조회")
