@@ -75,4 +75,12 @@ public class Review {
     public void decreaseLikeCount() {
         if (this.likeCount > 0) this.likeCount--;
     }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        if (this.commentCount > 0) this.commentCount--;
+    }
 }
