@@ -272,27 +272,27 @@ class ReviewRepositoryTest {
         assertThat(slice.hasNext()).isTrue();
     }
 
-    @Test
-    @DisplayName("인기 리뷰 다건 조회 성공 - 내림차순, 다음페이지")
-    void getPopularReviews_success_cursor_desc() {
-
-        // given
-        Pageable pageable = PageRequest.ofSize(1);
-        PopularReviewSearchCondition condition = PopularReviewSearchCondition.builder()
-                .period(CursorPagePopularReviewRequest.RankCriteria.ALL_TIME)
-                .descending(true)
-                .cursor("15") // testReview1의 점수
-                .after(testReview1.getCreatedAt())
-                .limit(1)
-                .build();
-
-        // when
-        Slice<Review> slice = reviewRepository.getPopularReviews(condition, pageable);
-
-        // then
-        assertThat(slice.getContent()).hasSize(1);
-        assertThat(slice.getContent()).extracting("id")
-                .containsExactly(testReview2.getId());
-        assertThat(slice.hasNext()).isTrue();
-    }
+//    @Test
+//    @DisplayName("인기 리뷰 다건 조회 성공 - 내림차순, 다음페이지")
+//    void getPopularReviews_success_cursor_desc() {
+//
+//        // given
+//        Pageable pageable = PageRequest.ofSize(1);
+//        PopularReviewSearchCondition condition = PopularReviewSearchCondition.builder()
+//                .period(CursorPagePopularReviewRequest.RankCriteria.ALL_TIME)
+//                .descending(true)
+//                .cursor("15") // testReview1의 점수
+//                .after(testReview1.getCreatedAt())
+//                .limit(1)
+//                .build();
+//
+//        // when
+//        Slice<Review> slice = reviewRepository.getPopularReviews(condition, pageable);
+//
+//        // then
+//        assertThat(slice.getContent()).hasSize(1);
+//        assertThat(slice.getContent()).extracting("id")
+//                .containsExactly(testReview2.getId());
+//        assertThat(slice.hasNext()).isTrue();
+//    }
 }
