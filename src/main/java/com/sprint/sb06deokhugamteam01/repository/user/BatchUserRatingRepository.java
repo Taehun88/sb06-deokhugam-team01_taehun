@@ -16,4 +16,6 @@ public interface BatchUserRatingRepository extends JpaRepository<BatchUserRating
             LocalDate periodEnd,
             UUID userId
     );
+
+    void deleteByUser_Id(UUID userId);
 }

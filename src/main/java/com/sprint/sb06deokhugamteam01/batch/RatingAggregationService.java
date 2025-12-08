@@ -1,11 +1,12 @@
 package com.sprint.sb06deokhugamteam01.batch;
 
-import com.sprint.sb06deokhugamteam01.domain.book.Book;
+
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchReviewRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchUserRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
@@ -15,6 +16,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RatingAggregationService {
 
+    private static final LocalDate ALL_TIME_START = LocalDate.of(1970, 1, 1);
+
     private final BatchBookRatingRepository batchBookRatingRepository;
     private final BatchReviewRatingRepository batchReviewRatingRepository;
     private final BatchUserRatingRepository batchUserRatingRepository;
@@ -43,10 +48,12 @@ public class RatingAggregationService {
         LocalDate dailyStart = targetDate;
         LocalDate weeklyStart = targetDate.minusDays(6);
         LocalDate monthlyStart = targetDate.minusDays(29);
+        LocalDate allTimeStart = ALL_TIME_START;
 
         upsertForPeriod(PeriodType.DAILY, dailyStart, targetDate);
         upsertForPeriod(PeriodType.WEEKLY, weeklyStart, targetDate);
         upsertForPeriod(PeriodType.MONTHLY, monthlyStart, targetDate);
+        upsertForPeriod(PeriodType.ALL_TIME, allTimeStart, targetDate);
     }
 
     private void upsertForPeriod(PeriodType periodType, LocalDate startDate, LocalDate endDate) {
@@ -77,6 +84,7 @@ public class RatingAggregationService {
                 .setParameter("end", endExclusive)
                 .getResultList();
 
+        List<BookSnapshot> snapshots = new ArrayList<>();
         for (Object[] row : rows) {
             UUID bookId = (UUID) row[0];
             long reviewCount = (long) row[1];
@@ -92,14 +100,36 @@ public class RatingAggregationService {
                     periodType,
                     periodStart,
                     periodEnd,
-                    em.getReference(Book.class, bookId),
+                    null,
                     (int) reviewCount,
                     Optional.ofNullable(avgRating).orElse(0.0d),
                     score,
                     null
             );
 
-            batchBookRatingRepository.save(entity);
+            snapshots.add(new BookSnapshot(
+                    entity,
+                    em.getReference(Book.class, bookId),
+                    (int) reviewCount,
+                    Optional.ofNullable(avgRating).orElse(0.0d),
+                    score
+            ));
+        }
+
+        snapshots.sort(Comparator.comparingDouble(BookSnapshot::score).reversed());
+        int rank = 1;
+        for (BookSnapshot snapshot : snapshots) {
+            snapshot.entity().applySnapshot(
+                    periodType,
+                    periodStart,
+                    periodEnd,
+                    snapshot.book(),
+                    snapshot.reviewCount(),
+                    snapshot.avgRating(),
+                    snapshot.score(),
+                    rank++
+            );
+            batchBookRatingRepository.save(snapshot.entity());
         }
     }
 
@@ -135,6 +165,7 @@ public class RatingAggregationService {
         reviewIds.addAll(commentCounts.keySet());
 
         Map<UUID, Double> reviewScores = new HashMap<>();
+        List<ReviewSnapshot> snapshots = new ArrayList<>();
 
         for (UUID reviewId : reviewIds) {
             int likes = likeCounts.getOrDefault(reviewId, 0);
@@ -151,14 +182,36 @@ public class RatingAggregationService {
                     periodType,
                     periodStart,
                     periodEnd,
-                    em.getReference(Review.class, reviewId),
+                    null,
                     likes,
                     comments,
                     score,
                     null
             );
 
-            batchReviewRatingRepository.save(entity);
+            snapshots.add(new ReviewSnapshot(
+                    entity,
+                    em.getReference(Review.class, reviewId),
+                    likes,
+                    comments,
+                    score
+            ));
+        }
+
+        snapshots.sort(Comparator.comparingDouble(ReviewSnapshot::score).reversed());
+        int rank = 1;
+        for (ReviewSnapshot snapshot : snapshots) {
+            snapshot.entity().applySnapshot(
+                    periodType,
+                    periodStart,
+                    periodEnd,
+                    snapshot.review(),
+                    snapshot.likes(),
+                    snapshot.comments(),
+                    snapshot.score(),
+                    rank++
+            );
+            batchReviewRatingRepository.save(snapshot.entity());
         }
 
         return reviewScores;
@@ -209,6 +262,7 @@ public class RatingAggregationService {
         userIds.addAll(commentsMade.keySet());
         userIds.addAll(reviewPopularitySum.keySet());
 
+        List<UserSnapshot> snapshots = new ArrayList<>();
         for (UUID userId : userIds) {
             int likes = likesMade.getOrDefault(userId, 0);
             int comments = commentsMade.getOrDefault(userId, 0);
@@ -224,7 +278,7 @@ public class RatingAggregationService {
                     periodType,
                     periodStart,
                     periodEnd,
-                    em.getReference(User.class, userId),
+                    null,
                     popularity,
                     likes,
                     comments,
@@ -232,7 +286,31 @@ public class RatingAggregationService {
                     null
             );
 
-            batchUserRatingRepository.save(entity);
+            snapshots.add(new UserSnapshot(
+                    entity,
+                    em.getReference(User.class, userId),
+                    popularity,
+                    likes,
+                    comments,
+                    score
+            ));
+        }
+
+        snapshots.sort(Comparator.comparingDouble(UserSnapshot::score).reversed());
+        int rank = 1;
+        for (UserSnapshot snapshot : snapshots) {
+            snapshot.entity().applySnapshot(
+                    periodType,
+                    periodStart,
+                    periodEnd,
+                    snapshot.user(),
+                    snapshot.reviewPopularitySum(),
+                    snapshot.likesMade(),
+                    snapshot.commentsMade(),
+                    snapshot.score(),
+                    rank++
+            );
+            batchUserRatingRepository.save(snapshot.entity());
         }
     }
 
@@ -261,4 +339,29 @@ public class RatingAggregationService {
         }
         return map;
     }
+
+    private record BookSnapshot(
+            BatchBookRating entity,
+            Book book,
+            int reviewCount,
+            double avgRating,
+            double score
+    ) {}
+
+    private record ReviewSnapshot(
+            BatchReviewRating entity,
+            Review review,
+            int likes,
+            int comments,
+            double score
+    ) {}
+
+    private record UserSnapshot(
+            BatchUserRating entity,
+            User user,
+            double reviewPopularitySum,
+            int likesMade,
+            int commentsMade,
+            double score
+    ) {}
 }

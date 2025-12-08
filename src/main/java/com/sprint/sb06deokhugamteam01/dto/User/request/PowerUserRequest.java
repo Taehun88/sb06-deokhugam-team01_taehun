@@ -18,7 +18,7 @@ public record PowerUserRequest(
         this.period = period != null ? period : "DAILY";
         this.direction = direction != null ? direction : "ASC";
         this.cursor = cursor;
-        this.after = after != null ? after : LocalDateTime.now();
+        this.after = after; // null이면 최신 집계일자를 사용한다.
         this.limit = limit != null ? limit : 20;
     }
 

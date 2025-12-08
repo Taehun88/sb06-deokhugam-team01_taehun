@@ -15,4 +15,6 @@ public interface BatchBookRatingRepository extends JpaRepository<BatchBookRating
             LocalDate periodEnd,
             UUID bookId
     );
+
+    void deleteByBook_Id(UUID bookId);
 }

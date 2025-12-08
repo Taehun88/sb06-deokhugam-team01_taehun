@@ -26,6 +26,7 @@ import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
+import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +48,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
+    private final BatchReviewRatingRepository batchReviewRatingRepository;
     private final ReviewMapper reviewMapper;
 
     @Override

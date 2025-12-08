@@ -40,7 +40,7 @@ public class RatingBatchJobConfig {
                                     chunkContext.getStepContext().getJobParameters().get("targetDate"))
                             .map(Object::toString)
                             .map(LocalDate::parse)
-                            .orElse(LocalDate.now().minusDays(1));
+                            .orElse(LocalDate.now());
 
                     ratingAggregationService.aggregateAllPeriods(targetDate);
                     return RepeatStatus.FINISHED;

@@ -26,18 +26,29 @@ public class BatchUserRatingRepositoryImpl implements CustomBatchUserRatingRepos
     public Slice<BatchUserRating> getBatchUserRatingList(PowerUserRequest request) {
         boolean ascending = request.direction().equals("ASC");
 
+        LocalDate targetPeriodEnd = request.after() != null
+                ? request.after().toLocalDate()
+                : queryFactory
+                        .select(bur.periodEnd.max())
+                        .from(bur)
+                        .where(bur.periodType.eq(request.toPeriodType()))
+                        .fetchOne();
+
+        if (targetPeriodEnd == null) {
+            return new SliceImpl<>(java.util.List.of(), Pageable.ofSize(request.limit()), false);
+        }
 
         var results = queryFactory
-            .selectFrom(bur)
-            .where(
-                bur.periodType.eq(request.toPeriodType()),
-                bur.periodStart.eq(request.setPeriodStart(request.after().toLocalDate())),
-                bur.periodEnd.eq(request.after().toLocalDate()),
-                cursorCondition(request.cursor(), request.after(), ascending)
-            )
-            .orderBy(scoreOrder(ascending), idOrder(ascending))
-            .limit(request.limit() + 1L)
-            .fetch();
+                .selectFrom(bur)
+                .where(
+                        bur.periodType.eq(request.toPeriodType()),
+                        bur.periodStart.eq(request.setPeriodStart(targetPeriodEnd)),
+                        bur.periodEnd.eq(targetPeriodEnd),
+                        cursorCondition(request.cursor(), request.after(), ascending)
+                )
+                .orderBy(scoreOrder(ascending), idOrder(ascending))
+                .limit(request.limit() + 1L)
+                .fetch();
 
         boolean hasNext = results.size() > request.limit();
         if (hasNext) {
