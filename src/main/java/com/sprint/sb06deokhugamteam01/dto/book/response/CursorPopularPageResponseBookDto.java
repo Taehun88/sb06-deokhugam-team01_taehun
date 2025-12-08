@@ -1,10 +1,12 @@
 package com.sprint.sb06deokhugamteam01.dto.book.response;
 
 import com.sprint.sb06deokhugamteam01.dto.book.PopularBookDto;
+import lombok.Builder;
 
 import java.util.List;
 
-public record CursorPopularPageResponse(
+@Builder
+public record CursorPopularPageResponseBookDto(
         List<PopularBookDto> content,
         String nextCursor,
         String nextAfter,
