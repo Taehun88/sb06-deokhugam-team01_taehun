@@ -25,9 +25,9 @@ class NotificationRepositoryImplTest {
 
     private static final LocalDateTime BASE_TIME = LocalDateTime.of(2025, 1, 1, 12, 0);
     private static final Comparator<Notification> DESC_COMPARATOR = Comparator
-        .comparing(Notification::getCreatedAt)
-        .reversed()
-        .thenComparing(Notification::getId, Comparator.reverseOrder());
+            .comparing(Notification::getCreatedAt)
+            .reversed()
+            .thenComparing(Notification::getId, Comparator.reverseOrder());
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -48,18 +48,18 @@ class NotificationRepositoryImplTest {
         List<Notification> sorted = sortByRepositoryOrder(newest, middle, oldest);
 
         Slice<Notification> result = notificationRepository.getNotifications(
-            user.getId(), null, null, false, 2, PageRequest.of(0, 2));
+                user.getId(), null, null, false, 2, PageRequest.of(0, 2));
 
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.hasNext()).isTrue();
         assertThat(result.getContent())
-            .isSortedAccordingTo(DESC_COMPARATOR);
+                .isSortedAccordingTo(DESC_COMPARATOR);
         assertThat(result.getContent())
-            .extracting(Notification::getId)
-            .containsExactly(
-                sorted.get(0).getId(),
-                sorted.get(1).getId()
-            );
+                .extracting(Notification::getId)
+                .containsExactly(
+                        sorted.get(0).getId(),
+                        sorted.get(1).getId()
+                );
     }
 
     @Test
@@ -75,42 +75,42 @@ class NotificationRepositoryImplTest {
         List<Notification> sorted = sortByRepositoryOrder(newest, middle, oldest);
 
         Slice<Notification> firstPage = notificationRepository.getNotifications(
-            user.getId(), null, null, false, 2, PageRequest.of(0, 2));
+                user.getId(), null, null, false, 2, PageRequest.of(0, 2));
 
         Notification lastOfFirstPage = firstPage.getContent().get(1);
         Slice<Notification> secondPage = notificationRepository.getNotifications(
-            user.getId(),
-            lastOfFirstPage.getId().toString(),
-            lastOfFirstPage.getCreatedAt(),
-            false,
-            2,
-            PageRequest.of(0, 2)
+                user.getId(),
+                lastOfFirstPage.getId().toString(),
+                lastOfFirstPage.getCreatedAt(),
+                false,
+                2,
+                PageRequest.of(0, 2)
         );
 
         assertThat(secondPage.getContent())
-            .extracting(Notification::getId)
-            .containsExactly(sorted.get(2).getId());
+                .extracting(Notification::getId)
+                .containsExactly(sorted.get(2).getId());
         assertThat(secondPage.hasNext()).isFalse();
         assertThat(firstPage.getContent())
-            .extracting(Notification::getId)
-            .containsExactly(
-                sorted.get(0).getId(),
-                sorted.get(1).getId()
-            );
+                .extracting(Notification::getId)
+                .containsExactly(
+                        sorted.get(0).getId(),
+                        sorted.get(1).getId()
+                );
     }
 
     private List<Notification> sortByRepositoryOrder(Notification... notifications) {
         return Arrays.stream(notifications)
-            .sorted(DESC_COMPARATOR)
-            .toList();
+                .sorted(DESC_COMPARATOR)
+                .toList();
     }
 
     private User saveUser() {
         User user = User.builder()
-            .email("test@example.com")
-            .nickname("tester")
-            .password("pwd")
-            .build();
+                .email("test@example.com")
+                .nickname("tester")
+                .password("pwd")
+                .build();
         ReflectionTestUtils.setField(user, "isActive", true);
         entityManager.persist(user);
         return user;
@@ -118,10 +118,10 @@ class NotificationRepositoryImplTest {
 
     private Notification saveNotification(User user, String content, LocalDateTime createdAt) {
         Notification notification = Notification.builder()
-            .user(user)
-            .content(content)
-            .confirmed(false)
-            .build();
+                .user(user)
+                .content(content)
+                .confirmed(false)
+                .build();
         ReflectionTestUtils.setField(notification, "createdAt", createdAt);
         ReflectionTestUtils.setField(notification, "updatedAt", createdAt);
         entityManager.persist(notification);
