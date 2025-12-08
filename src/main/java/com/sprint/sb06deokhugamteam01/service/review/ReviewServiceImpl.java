@@ -331,7 +331,6 @@ public class ReviewServiceImpl implements ReviewService {
 
         commentRepository.deleteAllByReview(review);
         reviewLikeRepository.deleteByReview(review);
-        batchReviewRatingRepository.deleteByReview_Id(reviewId);
         reviewRepository.delete(review);
     }
 
