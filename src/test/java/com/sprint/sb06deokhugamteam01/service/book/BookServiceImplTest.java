@@ -11,6 +11,7 @@ import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.book.S3UploadFailedException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +53,9 @@ class BookServiceImplTest {
 
     @Mock
     private BookSearchService bookSearchService;
+
+    @Mock
+    private BatchBookRatingRepository batchBookRatingRepository;
 
     @Mock
     private OcrService ocrService;

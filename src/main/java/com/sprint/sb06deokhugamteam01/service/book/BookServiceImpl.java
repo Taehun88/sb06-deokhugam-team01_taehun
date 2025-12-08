@@ -1,19 +1,25 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
+import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.book.BookOrderBy;
 import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.PopularBookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
+import com.sprint.sb06deokhugamteam01.dto.book.request.PagingPopularBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPopularPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.AlreadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.S3UploadFailedException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
+import com.sprint.sb06deokhugamteam01.repository.book.PopularBookQRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +39,7 @@ public class BookServiceImpl implements  BookService {
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
     private final ReviewRepository reviewRepository;
+    private final PopularBookQRepository popularBookQRepository;
     private final BatchBookRatingRepository batchBookRatingRepository;
     private final BookSearchService bookSearchService;
     private final OcrService ocrService;
@@ -78,6 +85,29 @@ public class BookServiceImpl implements  BookService {
                 .nextAfter(bookSlice.hasNext() ?
                         bookSlice.getContent().get(bookSlice.getContent().size() -1).getCreatedAt().toString() : null)
                 .size(pagingBookRequest.limit())
+                .totalElements((int) bookRepository.count())
+                .hasNext(bookSlice.hasNext())
+                .build();
+
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CursorPopularPageResponseBookDto getBooksByPopularPage(PagingPopularBookRequest pagingPopularBookRequest) {
+
+        Slice<BatchBookRating> bookSlice = popularBookQRepository.findPopularBooksByPeriodAndCursor(pagingPopularBookRequest);
+
+        return CursorPopularPageResponseBookDto.builder()
+                .content(bookSlice.getContent().stream().map(
+                        batchBookRating -> PopularBookDto.fromEntity(
+                                batchBookRating.getBook(),
+                                batchBookRating
+                )).toList())
+                .nextCursor(bookSlice.hasNext() ?
+                        bookSlice.getContent().get(bookSlice.getContent().size() -1).getBook().getId().toString() : null)
+                .nextAfter(bookSlice.hasNext() ?
+                        bookSlice.getContent().get(bookSlice.getContent().size() -1).getBook().getCreatedAt().toString() : null)
+                .size(pagingPopularBookRequest.limit())
                 .totalElements((int) bookRepository.count())
                 .hasNext(bookSlice.hasNext())
                 .build();
@@ -182,12 +212,14 @@ public class BookServiceImpl implements  BookService {
 
         s3StorageService.deleteObject(book.getThumbnailUrl());
 
-        bookRepository.deleteById(id);
+        batchBookRatingRepository.deleteByBook_Id(id);
 
         //연관관계 매핑된 리뷰들 모두 삭제하기
         List<Review> reviewList = reviewRepository.findByBook_Id(id);
         commentRepository.deleteByReviewIn(reviewList);
         reviewRepository.deleteByBook_Id(id);
+
+        bookRepository.deleteById(id);
 
     }
 

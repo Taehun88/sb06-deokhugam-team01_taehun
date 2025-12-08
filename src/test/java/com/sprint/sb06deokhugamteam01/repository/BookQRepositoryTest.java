@@ -1,8 +1,12 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
+import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
+import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.dto.book.PopularBookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
+import com.sprint.sb06deokhugamteam01.repository.book.BookQRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

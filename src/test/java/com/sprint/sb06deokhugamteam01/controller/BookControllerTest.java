@@ -1,11 +1,14 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
+import com.sprint.sb06deokhugamteam01.dto.book.request.PagingPopularBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.BookInfo;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPopularPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.service.book.BookService;
 import org.jeasy.random.EasyRandom;
@@ -129,6 +132,48 @@ class BookControllerTest {
                 )
                 .andExpect(status().isBadRequest());
 
+
+    }
+
+    @Test
+    @DisplayName("getPopularBooks 성공 테스트")
+    void getPopularBooks_Success() throws Exception {
+
+        //given
+        EasyRandom easyRandom = new EasyRandom();
+        PagingPopularBookRequest request = PagingPopularBookRequest.builder()
+                .period(PeriodType.ALL_TIME)
+                .direction(PagingPopularBookRequest.SortDirection.DESC)
+                .cursor("")
+                .after(LocalDateTime.now())
+                .limit(10)
+                .build();
+
+        CursorPopularPageResponseBookDto response = CursorPopularPageResponseBookDto.builder()
+                .content(new ArrayList<>())
+                .nextCursor("next-cursor-value")
+                .nextAfter("next-after-value")
+                .size(10)
+                .totalElements(100)
+                .build();
+
+        when(bookService.getBooksByPopularPage(any(PagingPopularBookRequest.class)))
+                .thenReturn(response);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/books/popular")
+                        .param("period", String.valueOf(request.period()))
+                        .param("direction", String.valueOf(request.direction()))
+                        .param("cursor", request.cursor())
+                        .param("after", String.valueOf(request.after()))
+                        .param("limit", String.valueOf(request.limit()))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.nextCursor").value(response.nextCursor()))
+                .andExpect(jsonPath("$.nextAfter").value(response.nextAfter()))
+                .andExpect(jsonPath("$.size").value(response.size()))
+                .andExpect(jsonPath("$.totalElements").value(response.totalElements()));
 
     }
 

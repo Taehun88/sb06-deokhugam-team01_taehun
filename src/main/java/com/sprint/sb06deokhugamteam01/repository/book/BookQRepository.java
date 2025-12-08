@@ -1,4 +1,4 @@
-package com.sprint.sb06deokhugamteam01.repository;
+package com.sprint.sb06deokhugamteam01.repository.book;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
