@@ -24,7 +24,7 @@ public class DailyBatchScheduler {
     /**
      * 매일 새벽 2시에 전일 데이터를 기준으로 집계 + 비활성 유저 삭제를 실행한다.
      */
-    @Scheduled(cron = "0 0 2 * * *")
+    @Scheduled(cron = "0 0/1 * * * *")
     public void runDaily() throws Exception {
         LocalDate targetDate = LocalDate.now().minusDays(1);
 

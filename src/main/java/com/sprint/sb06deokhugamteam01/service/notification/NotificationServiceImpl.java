@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public Notification updateNotification(UUID notificationId, UUID userId) {
+    public Notification updateNotification(UUID notificationId, UUID userId, boolean confirmed) {
         Notification optionalNotification = notificationRepository.findById(notificationId)
             .orElseThrow(() -> new NotificationNotFoundException(Map.of("notificationId", notificationId)));
 
@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
             throw new UnauthorizedAccessException(Map.of("notificationId", notificationId));
         }
 
-        optionalNotification.confirm();
+        optionalNotification.changeConfirm(confirmed);
 
         return optionalNotification;
     }

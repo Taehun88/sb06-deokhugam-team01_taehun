@@ -15,7 +15,6 @@ public record ReviewCreateRequest (
         UUID userId,
 
         @NotBlank(message = "리뷰 내용은 비어있을 수 없습니다.")
-        @Size(min = 20, max = 1000, message = "리뷰 내용은 20자 이상 1000자 이하여야 합니다.")
         String content,
 
         @NotNull(message = "평점은 비어있을 수 없습니다.")

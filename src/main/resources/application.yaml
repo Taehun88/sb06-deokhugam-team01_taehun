@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  batch:
+    jdbc:
+      initialize-schema: always
 naver:
   api:
     endpoint: https://openapi.naver.com/v1/search/book_adv.json

@@ -52,4 +52,8 @@ public class Notification {
     public void confirm() {
         this.confirmed = true;
     }
+
+    public void changeConfirm(boolean status) {
+        this.confirmed = status;
+    }
 }
