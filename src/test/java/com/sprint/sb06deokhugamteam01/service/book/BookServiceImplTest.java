@@ -231,9 +231,6 @@ class BookServiceImplTest {
         when(bookRepository.existsByIsbnAndIsActive(bookCreateRequest.isbn(), true))
                 .thenReturn(true);
 
-        when(bookRepository.findByIsbnAndIsActive(bookCreateRequest.isbn(), true))
-                .thenReturn(Optional.of(book));
-
         //when
         AlreadyExistsIsbnException exception = assertThrows(AlreadyExistsIsbnException.class, () -> {
             bookService.createBook(bookCreateRequest, null);
