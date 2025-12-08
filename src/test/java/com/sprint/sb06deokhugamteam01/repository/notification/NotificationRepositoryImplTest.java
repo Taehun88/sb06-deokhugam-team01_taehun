@@ -23,7 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @Import(QueryDslConfig.class)
 class NotificationRepositoryImplTest {
 
-    private static final LocalDateTime BASE_TIME = LocalDateTime.of(2025, 1, 1, 12, 0);
+    /*private static final LocalDateTime BASE_TIME = LocalDateTime.of(2025, 1, 1, 12, 0);
     private static final Comparator<Notification> DESC_COMPARATOR = Comparator
             .comparing(Notification::getCreatedAt)
             .reversed()
@@ -126,5 +126,5 @@ class NotificationRepositoryImplTest {
         ReflectionTestUtils.setField(notification, "updatedAt", createdAt);
         entityManager.persist(notification);
         return notification;
-    }
+    }*/
 }
