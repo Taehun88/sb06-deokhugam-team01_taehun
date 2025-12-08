@@ -154,7 +154,6 @@ public class BookServiceImpl implements  BookService {
             throw new BookNotFoundException(detailMap("id", id));
         }
 
-        batchBookRatingRepository.deleteByBook_Id(id);
         bookRepository.deleteById(id);
 
         //연관관계 매핑된 리뷰들 모두 삭제하기

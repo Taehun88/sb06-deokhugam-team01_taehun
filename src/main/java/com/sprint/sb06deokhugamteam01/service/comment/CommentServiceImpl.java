@@ -50,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ReviewNotFoundException(Map.of("reviewId", request.reviewId())));
 
         Comment comment = Comment.builder().user(user).review(review).content(request.content()).build();
+        review.increaseCommentCount();
         commentRepository.save(comment);
 
         notificationRepository.save(Notification.builder().user(review.getUser()).review(review)
