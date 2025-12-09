@@ -92,6 +92,30 @@ public class Book {
         }
     }
 
+    public void addNewReview(double score) {
+
+        double totalScore = this.rating * this.reviewCount;
+        totalScore += score;
+        this.reviewCount += 1;
+        this.rating = totalScore / this.reviewCount;
+
+    }
+
+    public void removeReview(double score) {
+
+        if (this.reviewCount <= 1) {
+            this.reviewCount = 0;
+            this.rating = 0.0;
+            return;
+        }
+
+        double totalScore = this.rating * this.reviewCount;
+        totalScore -= score;
+        this.reviewCount -= 1;
+        this.rating = totalScore / this.reviewCount;
+
+    }
+
     public void softDelete() {
         this.isActive = false;
     }
