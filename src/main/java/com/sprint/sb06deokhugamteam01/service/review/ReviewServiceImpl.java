@@ -20,7 +20,6 @@ import com.sprint.sb06deokhugamteam01.exception.common.UnauthorizedAccessExcepti
 import com.sprint.sb06deokhugamteam01.exception.review.InvalidReviewCursorException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewAlreadyExistsException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
-import com.sprint.sb06deokhugamteam01.exception.user.InvalidUserException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
 import com.sprint.sb06deokhugamteam01.mapper.ReviewMapper;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
@@ -343,6 +342,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         commentRepository.deleteAllByReview(review);
         reviewLikeRepository.deleteByReview(review);
+        batchReviewRatingRepository.deleteByReview_Id(reviewId);
         reviewRepository.delete(review);
 
         // TODO Book의 Rating 업데이트
