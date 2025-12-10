@@ -1,20 +1,35 @@
 package com.sprint.sb06deokhugamteam01.service.review;
 
-import com.sprint.sb06deokhugamteam01.domain.Book;
-import com.sprint.sb06deokhugamteam01.domain.review.PopularReviewSearchCondition;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
+import com.sprint.sb06deokhugamteam01.domain.Notification;
+import com.sprint.sb06deokhugamteam01.domain.ReviewLike;
+import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.domain.review.ReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.review.*;
-import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
+import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
+import com.sprint.sb06deokhugamteam01.dto.review.ReviewSearchCondition;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPagePopularReviewRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPageReviewRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.ReviewCreateRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.ReviewUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponsePopularReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponseReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewLikeDto;
+import com.sprint.sb06deokhugamteam01.exception.common.UnauthorizedAccessException;
+import com.sprint.sb06deokhugamteam01.exception.review.InvalidReviewCursorException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewAlreadyExistsException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
-import com.sprint.sb06deokhugamteam01.exception.user.InvalidUserException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
+import com.sprint.sb06deokhugamteam01.mapper.ReviewMapper;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.notification.NotificationRepository;
+import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
-import com.sprint.sb06deokhugamteam01.repository.UserRepository;
+import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,32 +38,33 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
+    private final BatchReviewRatingRepository batchReviewRatingRepository;
+    private final NotificationRepository notificationRepository;
+    private final ReviewMapper reviewMapper;
 
     @Override
     @Transactional
     public ReviewDto createReview(ReviewCreateRequest request) {
 
         UUID userId = request.userId();
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", userId)));
 
         Book book = bookRepository.findById(request.bookId())
-                .orElseThrow(() -> new NoSuchBookException(detailMap("bookId", request.bookId())));
+                .orElseThrow(() -> new BookNotFoundException(detailMap("bookId", request.bookId())));
 
-        // 누가 어떤 책에 대해 이미 리뷰를 쓴건지 정보를 담음
         if (reviewRepository.existsByUserAndBook(user, book)) {
             Map<String, Object> details = new HashMap<>();
             details.put("userId", user.getId());
@@ -68,25 +84,30 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review savedReview = reviewRepository.save(review);
 
-        return ReviewDto.from(savedReview);
+        book.updateRatingOnNewReview(request.rating());
+        bookRepository.save(book);
+        return reviewMapper.toDto(savedReview, user);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ReviewDto getReview(UUID reviewId, UUID requestUserId) {
 
-        userRepository.findById(requestUserId)
+        User requestUser = userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
-        return ReviewDto.from(review);
+        return reviewMapper.toDto(review, requestUser);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CursorPageResponseReviewDto getReviews(CursorPageReviewRequest request, UUID requestUserId) {
+
+        userRepository.findById(requestUserId)
+                .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         // 기본값 처리
         int limit = request.limit() != null
@@ -104,6 +125,27 @@ public class ReviewServiceImpl implements ReviewService {
         boolean ascending = (sortDirection == CursorPageReviewRequest.SortDirection.ASC);
         boolean useRating = (sortField == CursorPageReviewRequest.SortField.rating);
 
+        // 커서 유효성 검증
+        String cursor = request.cursor();
+        if (cursor != null && !cursor.isEmpty()) {
+            if (useRating) {
+                try {
+                    long longCursor = Long.parseLong(request.cursor());
+                    if (longCursor < 1 || longCursor > 5) {
+                        throw new InvalidReviewCursorException(detailMap("cursor", request.cursor()));
+                    }
+                } catch (NumberFormatException e) {
+                    throw new InvalidReviewCursorException(detailMap("cursor", request.cursor()));
+                }
+            } else {
+                try {
+                    LocalDateTime.parse(cursor);
+                } catch (DateTimeParseException parseException){
+                    throw new InvalidReviewCursorException(detailMap("cursor", cursor));
+                }
+            }
+        }
+
         // 커서 페이징 설정
         Pageable pageable = PageRequest.of(0, limit);
 
@@ -116,15 +158,21 @@ public class ReviewServiceImpl implements ReviewService {
                 .ascending(ascending)
                 .cursor(request.cursor())
                 .after(request.after())
-                .limit(request.limit())
+                .limit(limit)
                 .build();
 
         Slice<Review> slice
                 = reviewRepository.getReviews(condition, pageable);
 
+        // N+1 문제 해결 위해 ID를 추출해 사용
+        List<UUID> reviewIds = slice.stream()
+                .map(Review::getId)
+                .toList();
+        List<UUID> likedReviewIds = reviewLikeRepository.findLikedReviewIdsByUserIdAndReviewIds(requestUserId, reviewIds);
+
         // DTO로 변환
         List<ReviewDto> content = slice.getContent().stream()
-                .map(ReviewDto::from) // TODO 조회하는 사용자가 좋아요 눌렀는지 계산 필요
+                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(requestUserId)))
                 .toList();
 
         // 커서 페이징 후처리
@@ -153,6 +201,22 @@ public class ReviewServiceImpl implements ReviewService {
     public CursorPageResponsePopularReviewDto getPopularReviews(CursorPagePopularReviewRequest request,
                                                                 UUID requestUserId
     ) {
+
+        userRepository.findById(requestUserId)
+                .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
+
+        // 커서 유효성 검증
+        if (request.cursor() != null && !request.cursor().isEmpty()) {
+
+            try {
+                if (Long.parseLong(request.cursor()) < 0) {
+                    throw new InvalidReviewCursorException(detailMap("cursor", request.cursor()));
+                }
+            } catch (NumberFormatException e) {
+                throw new InvalidReviewCursorException(detailMap("cursor", request.cursor()));
+            }
+        }
+
         // 기본값 처리
         int limit = request.limit() != null
                 ? request.limit()
@@ -161,10 +225,10 @@ public class ReviewServiceImpl implements ReviewService {
                 = request.direction() != null
                 ? request.direction()
                 : CursorPagePopularReviewRequest.SortDirection.ASC;
-        CursorPagePopularReviewRequest.RankCriteria period
+        PeriodType period
                 = request.period() != null
                 ? request.period()
-                : CursorPagePopularReviewRequest.RankCriteria.DAILY;
+                : PeriodType.DAILY;
 
         boolean descending = (sortDirection == CursorPagePopularReviewRequest.SortDirection.DESC);
 
@@ -177,14 +241,20 @@ public class ReviewServiceImpl implements ReviewService {
                 .descending(descending)
                 .cursor(request.cursor())
                 .after(request.after())
-                .limit(request.limit())
+                .limit(limit)
                 .build();
 
         Slice<Review> slice = reviewRepository.getPopularReviews(condition, pageable);
 
+        // N+1 문제 해결 위해 ID를 추출해 사용
+        List<UUID> reviewIds = slice.stream()
+                .map(Review::getId)
+                .toList();
+        List<UUID> likedReviewIds = reviewLikeRepository.findLikedReviewIdsByUserIdAndReviewIds(requestUserId, reviewIds);
+
         // DTO로 변환
         List<ReviewDto> content = slice.getContent().stream()
-                .map(ReviewDto::from) // TODO 조회하는 사용자가 좋아요 눌렀는지 계산 필요
+                .map(review -> reviewMapper.toDto(review, likedReviewIds.contains(requestUserId)))
                 .toList();
 
         // 커서 페이징 후처리
@@ -222,29 +292,42 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 작성자 == 요청자인지 검증
         if (!review.getUser().getId().equals(user.getId())) {
-            throw new InvalidUserException(detailMap("userId", requestUserId));
+            throw new UnauthorizedAccessException(detailMap("userId", requestUserId));
         }
 
         if (updateRequest.content() != null) {
             review.updateContent(updateRequest.content());
         }
         if (updateRequest.rating() != null) {
-            review.updateRating(updateRequest.rating());
+            int oldRating = review.getRating();
+            int newRating = updateRequest.rating();
+            review.updateRating(newRating);
+            review.getBook().updateRatingOnReviewUpdate(oldRating, newRating);
+            bookRepository.save(review.getBook());
         }
 
         Review savedReview = reviewRepository.save(review);
-        return ReviewDto.from(savedReview);
+        return reviewMapper.toDto(savedReview, user);
     }
 
     @Override
     @Transactional
     public void deleteReview(UUID reviewId, UUID requestUserId) {
 
-        userRepository.findById(requestUserId)
+        User user = userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
+
+        // 작성자 == 요청자인지 검증
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException(detailMap("userId", requestUserId));
+        }
+
+        Book book = review.getBook();
+        book.updateRatingOnReviewDelete(review.getRating());
+        bookRepository.save(book);
 
         review.softDelete();
         reviewRepository.save(review);
@@ -260,32 +343,64 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
-        reviewRepository.delete(review);
-        // 연관관계 매핑된 좋아요, 댓글, 활동점수 영구 삭제
-        // TODO 좋아요를 DB에 저장해야 하지 않나?
+        Book book = review.getBook();
+
+        if (review.isActive()) {
+            book.updateRatingOnReviewDelete(review.getRating());
+        } else {
+            book.updateRatingOnReviewHardDelete(review.getRating());
+        }
+        bookRepository.save(book);
+
         commentRepository.deleteAllByReview(review);
+        reviewLikeRepository.deleteByReview(review);
+        batchReviewRatingRepository.deleteByReview_Id(reviewId);
+        reviewRepository.delete(review);
     }
 
     @Override
     @Transactional
-    public ReviewLikeDto likeReview(UUID reviewId, UUID requestUserId) {
+    public ReviewLikeDto likeReviewToggle(UUID reviewId, UUID requestUserId) {
 
-        userRepository.findById(requestUserId)
+        User user = userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
-        // TODO 유저-좋아요 정보 저장 필요
-        review.increaseLikeCount();
+        boolean liked;
+
+        Optional<ReviewLike> existingReviewLike = reviewLikeRepository.findByUserAndReview(user, review);
+        if (existingReviewLike.isPresent()) {
+            reviewLikeRepository.delete(existingReviewLike.get());
+            review.decreaseLikeCount();
+            liked = false;
+        }
+        else {
+            ReviewLike reviewLike = ReviewLike.builder()
+                    .user(user)
+                    .review(review)
+                    .build();
+            reviewLikeRepository.save(reviewLike);
+            Notification notification = Notification.builder()
+                    .user(review.getUser())
+                    .review(review)
+                    .confirmed(false)
+                    .content("[" + user.getNickname() + "]님이 나의 리뷰를 좋아합니다.")
+                    .build();
+
+            notificationRepository.save(notification);
+            review.increaseLikeCount();
+            liked = true;
+        }
+
         reviewRepository.save(review);
 
         return ReviewLikeDto.builder()
                 .reviewId(review.getId())
                 .userId(requestUserId)
-                .liked(true)
+                .liked(liked)
                 .build();
-
     }
 
     private Map<String, Object> detailMap(String key, Object value) {

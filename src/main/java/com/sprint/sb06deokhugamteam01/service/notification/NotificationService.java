@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface NotificationService {
 
-    Notification updateNotification(UUID notificationId, UUID userId);
+    Notification updateNotification(UUID notificationId, UUID userId, boolean status);
 
     Notification deleteNotification(UUID notificationId);
 

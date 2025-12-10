@@ -7,9 +7,7 @@ import java.util.Map;
 
 public class ReviewAlreadyExistsException extends RootException {
 
-    ErrorCode errorCode = ErrorCode.REVIEW_ALREADY_EXISTS;
-
     public ReviewAlreadyExistsException(Map<String, Object> details) {
-        super(ErrorCode.REVIEW_ALREADY_EXISTS, details);
+        super(ErrorCode.INVALID_REVIEW_CURSOR, details);
     }
 }

@@ -58,7 +58,7 @@ class NotificationServiceTest {
 
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(existing));
 
-        Notification result = target.updateNotification(notificationId, user.getId());
+        Notification result = target.updateNotification(notificationId, user.getId(), true);
 
         verify(notificationRepository).findById(notificationId);
         assertThat(result.isConfirmed()).isTrue();
@@ -70,7 +70,7 @@ class NotificationServiceTest {
         UUID notificationId = UUID.randomUUID();
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> target.updateNotification(notificationId, user.getId()))
+        assertThatThrownBy(() -> target.updateNotification(notificationId, user.getId(), true))
             .isInstanceOf(NotificationNotFoundException.class);
     }
 
@@ -87,7 +87,7 @@ class NotificationServiceTest {
 
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(existing));
 
-        assertThatThrownBy(() -> target.updateNotification(notificationId, user.getId()))
+        assertThatThrownBy(() -> target.updateNotification(notificationId, user.getId(), true))
             .isInstanceOf(UnauthorizedAccessException.class);
     }
 

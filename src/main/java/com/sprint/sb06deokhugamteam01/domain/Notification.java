@@ -1,6 +1,5 @@
 package com.sprint.sb06deokhugamteam01.domain;
 
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -51,5 +50,9 @@ public class Notification {
 
     public void confirm() {
         this.confirmed = true;
+    }
+
+    public void changeConfirm(boolean status) {
+        this.confirmed = status;
     }
 }

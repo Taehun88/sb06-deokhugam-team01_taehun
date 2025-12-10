@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.domain;
 
+import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -9,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,7 +65,13 @@ public class User {
         this.deletedAt = now;
     }
 
-    public boolean isPendingDeletion(LocalDateTime threshold) {
-        return deletedAt != null && deletedAt.isBefore(threshold);
+    public static User toEntity(UserRegisterRequest userRegisterRequest) {
+        return User.builder()
+            .email(userRegisterRequest.email())
+            .nickname(userRegisterRequest.nickname())
+            .password(userRegisterRequest.password())
+            .isActive(true)
+            .createdAt(LocalDateTime.now())
+            .build();
     }
 }

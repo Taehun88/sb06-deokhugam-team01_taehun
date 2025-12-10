@@ -37,13 +37,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'
 
     annotationProcessor 'org.projectlombok:lombok'
-    // implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.jeasy:easy-random-core:5.0.0'
@@ -60,3 +62,10 @@ tasks.named('test') {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
+
+// 로컬 테스트 통과 위한 임시조치
+//test {
+//    systemProperty 'NAVER_API_CLIENT_ID', 'temp_id'
+//    systemProperty 'NAVER_API_CLIENT_SECRET', 'temp_secret'
+//    systemProperty 'OCR_SPACE_API_KEY', 'temp_ocr_key'
+//}

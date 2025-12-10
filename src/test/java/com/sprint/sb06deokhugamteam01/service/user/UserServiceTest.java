@@ -12,7 +12,7 @@ import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
 import com.sprint.sb06deokhugamteam01.exception.common.UnauthorizedAccessException;
 import com.sprint.sb06deokhugamteam01.exception.user.InvalidUserException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
-import com.sprint.sb06deokhugamteam01.repository.UserRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -232,15 +232,6 @@ class UserServiceTest {
         assertThat(result.isActive()).isFalse();
         assertThat(result.getDeletedAt()).isNotNull();
         verify(userRepository).save(user);
-    }
-
-    @Test
-    void purgeDeletedUsersBefore_shouldDelegateToRepository() {
-        LocalDateTime cutoff = LocalDateTime.now().minusDays(1);
-
-        target.purgeDeletedUsersBefore(cutoff);
-
-        verify(userRepository).deleteAllSoftDeletedBefore(cutoff);
     }
 
     private User randomUser(boolean active) {

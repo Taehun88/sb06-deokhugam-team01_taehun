@@ -1,4 +1,4 @@
-FROM gradle:8.10.2-jdk17-alpine AS builder
+FROM gradle:8.10.2-jdk17 AS builder
 WORKDIR /app
 
 COPY gradle gradle
@@ -8,7 +8,7 @@ COPY src src
 RUN chmod +x gradlew \
   && ./gradlew bootJar -x test
 
-FROM eclipse-temurin:17-jre-alpine
+FROM amazoncorretto:17-alpine-jdk
 WORKDIR /app
 
 ENV SPRING_PROFILES_ACTIVE=default \
