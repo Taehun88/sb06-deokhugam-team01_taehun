@@ -35,6 +35,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         optionalNotification.changeConfirm(confirmed);
+        notificationRepository.save(optionalNotification);
 
         return optionalNotification;
     }
